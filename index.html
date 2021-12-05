@@ -11,7 +11,7 @@
     
     
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"Website","@id":"http://example.com","author":{"@type":"Person","name":"LameCrow","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"name":"LameCrow","description":"欢迎交流!!!","url":"http://example.com"}</script>
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"Website","@id":"http://example.com","author":{"@type":"Person","name":"LameCrow","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"],"image":"head.jpg"},"name":"LameCrow","description":"欢迎交流!!!","url":"http://example.com"}</script>
     <meta name="description" content="欢迎交流!!!">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="LameCrow">
@@ -25,6 +25,8 @@
     
         
     
+    
+        <meta property="og:image" content="http://example.com/assets/images/head.jpg"/>
     
     
     
@@ -47,6 +49,10 @@
 
 
     
+        
+            
+        
+    
 
 <header id="header" data-behavior="1">
     <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
@@ -68,6 +74,8 @@
             >
         
         
+            <img class="header-picture" src="/assets/images/head.jpg" alt="Bild des Autors"/>
+        
         </a>
     
 </header>
@@ -75,8 +83,26 @@
             <!-- Define author's picture -->
 
 
+
+        
+    
+
 <nav id="sidebar" data-behavior="1">
     <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a
+                    href="/#about"
+                    aria-label="Lesen Sie mehr über den Autor"
+                >
+                    <img class="sidebar-profile-picture" src="/assets/images/head.jpg" alt="Bild des Autors"/>
+                </a>
+                <h4 class="sidebar-profile-name">LameCrow</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>author.bio</p>
+</h5>
+                
+            </div>
         
         
             <ul class="sidebar-buttons">
@@ -396,11 +422,17 @@
         
 
 
+    
+        
+    
+
 <div id="about">
     <div id="about-card">
         <div id="about-btn-close">
             <i class="fa fa-times"></i>
         </div>
+        
+            <img id="about-card-picture" src="/assets/images/head.jpg" alt="Bild des Autors"/>
         
             <h4 id="about-card-name">LameCrow</h4>
         
