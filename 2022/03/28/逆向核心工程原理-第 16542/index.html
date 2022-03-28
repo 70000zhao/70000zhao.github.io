@@ -1,0 +1,140 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="逆向核心工程原理-18"><meta name="keywords" content="逆向核心工程原理"><meta name="author" content="LamのCrow"><meta name="copyright" content="LamのCrow"><title>逆向核心工程原理-18 | LamのCrow</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%E5%8D%81%E5%85%AB%E7%AB%A0-UPackPE-PE%E6%96%87%E4%BB%B6%E5%A4%B4%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">逆向核心工程原理-第十八章-UPackPE  PE文件头分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#18-1-UPacK%E8%AF%B4%E6%98%8E"><span class="toc-number">2.</span> <span class="toc-text">18.1    UPacK说明</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#18-2-%E4%BD%BF%E7%94%A8UPack%E5%8E%8B%E7%BC%A9notepad-exe"><span class="toc-number">3.</span> <span class="toc-text">18.2    使用UPack压缩notepad.exe</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#18-3-%E4%BD%BF%E7%94%A8Stud-PE%E5%B7%A5%E5%85%B7"><span class="toc-number">4.</span> <span class="toc-text">18.3    使用Stud_PE工具</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#18-4-%E6%AF%94%E8%BE%83PE%E6%96%87%E4%BB%B6%E5%A4%B4"><span class="toc-number">5.</span> <span class="toc-text">18.4    比较PE文件头</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#18-4-1-%E5%8E%9Fnotepad-exe%E7%9A%84PE%E6%96%87%E4%BB%B6%E5%A4%B4"><span class="toc-number">5.1.</span> <span class="toc-text">18.4.1    原notepad.exe的PE文件头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-4-2-notepad-upack-exe%E7%9A%84%E6%96%87%E4%BB%B6%E5%A4%B4"><span class="toc-number">5.2.</span> <span class="toc-text">18.4.2    notepad_upack.exe的文件头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-5-2-IMAGE-FILE-HEADER-%E6%96%87%E4%BB%B6%E5%A4%B4-SizeOfOptionalHeader-%E5%8F%AF%E9%80%89%E5%A4%B4%E7%9A%84%E5%A4%A7%E5%B0%8F"><span class="toc-number">5.3.</span> <span class="toc-text">18.5.2    IMAGE_FILE_HEADER(文件头).SizeOfOptionalHeader(可选头的大小)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-5-3-IMAGE-OPTIONAL-HEADER-%E5%8F%AF%E9%80%89%E5%A4%B4-NumberOfRvaAndSizes"><span class="toc-number">5.4.</span> <span class="toc-text">18.5.3    IMAGE_OPTIONAL_HEADER(可选头).NumberOfRvaAndSizes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-5-4-IMAGE-SECTION-HEADER-%E8%8A%82%E5%8C%BA%E5%A4%B4"><span class="toc-number">5.5.</span> <span class="toc-text">18.5.4    IMAGE_SECTION_HEADER(节区头)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-5-5-%E9%87%8D%E5%8F%A0%E8%8A%82%E5%8C%BA"><span class="toc-number">5.6.</span> <span class="toc-text">18.5.5    重叠节区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-5-6-RVA-to-RAW"><span class="toc-number">5.7.</span> <span class="toc-text">18.5.6   RVA to RAW</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-5-7-%E5%AF%BC%E5%85%A5%E8%A1%A8-IMAGE-IMPORT-DESCRIPTOR"><span class="toc-number">5.8.</span> <span class="toc-text">18.5.7    导入表(IMAGE_IMPORT_DESCRIPTOR)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-5-8-%E5%AF%BC%E5%85%A5%E5%9C%B0%E5%9D%80%E8%A1%A8"><span class="toc-number">5.9.</span> <span class="toc-text">18.5.8   导入地址表</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s4.ax1x.com/2021/12/07/oyWTJA.jpg"></div><div class="author-info__name text-center">LamのCrow</div><div class="author-info__description text-center">欢迎交流!!!</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">23</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">2</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" target="_blank" rel="noopener" href="https://space.bilibili.com/202089320">MyBIlibili</a><a class="author-info-links__name text-center" target="_blank" rel="noopener" href="https://sma11cc.github.io/">smallcc</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s4.ax1x.com/2021/12/06/oy2VdH.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">LamのCrow</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">逆向核心工程原理-18</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-03-28</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="逆向核心工程原理-第十八章-UPackPE-PE文件头分析"><a href="#逆向核心工程原理-第十八章-UPackPE-PE文件头分析" class="headerlink" title="逆向核心工程原理-第十八章-UPackPE  PE文件头分析"></a>逆向核心工程原理-第十八章-UPackPE  PE文件头分析</h1><span id="more"></span>
+
+<p>Upack是一个PE文件运行时压缩器(壳),  特点之一就是对PE头的变形.</p>
+<h1 id="18-1-UPacK说明"><a href="#18-1-UPacK说明" class="headerlink" title="18.1    UPacK说明"></a>18.1    UPacK说明</h1><p>UPack多用于恶意程序加壳.</p>
+<h1 id="18-2-使用UPack压缩notepad-exe"><a href="#18-2-使用UPack压缩notepad-exe" class="headerlink" title="18.2    使用UPack压缩notepad.exe"></a>18.2    使用UPack压缩notepad.exe</h1><ul>
+<li>首先Upack.exe跟notepad.exe再同一目录下</li>
+<li>打开命令行输入:  upack notepad.exe</li>
+<li>得到了加壳后的程序</li>
+</ul>
+<p>注意加壳不是生成新文件,  而是直接修改源程序,  注意备份</p>
+<p>使用PEView查看</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled.png" alt="Untitled"></p>
+<p>跟原书有点出入是空出的那一行为RVA = 18,  Data = 0011B0BE,  描述:  Time Date Stamp</p>
+<p>可以看到左边的目录PEview没有分析处可选头和节区头等信息</p>
+<h1 id="18-3-使用Stud-PE工具"><a href="#18-3-使用Stud-PE工具" class="headerlink" title="18.3    使用Stud_PE工具"></a>18.3    使用Stud_PE工具</h1><p>在google上下载的工具,  能够识别处upack加壳后的程序</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%201.png" alt="Untitled"></p>
+<h1 id="18-4-比较PE文件头"><a href="#18-4-比较PE文件头" class="headerlink" title="18.4    比较PE文件头"></a>18.4    比较PE文件头</h1><p>使用HED打开加了upack壳和未加upack壳的notepad.exe</p>
+<h2 id="18-4-1-原notepad-exe的PE文件头"><a href="#18-4-1-原notepad-exe的PE文件头" class="headerlink" title="18.4.1    原notepad.exe的PE文件头"></a>18.4.1    原notepad.exe的PE文件头</h2><p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%202.png" alt="Untitled"></p>
+<h2 id="18-4-2-notepad-upack-exe的文件头"><a href="#18-4-2-notepad-upack-exe的文件头" class="headerlink" title="18.4.2    notepad_upack.exe的文件头"></a>18.4.2    notepad_upack.exe的文件头</h2><p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%203.png" alt="Untitled"></p>
+<p>可以看到加了upack的notepad程序把MZ文件头(DOS头)和PE文件头(NT头)<strong>重叠</strong>在了一起. 并可<strong>节约文件空间</strong>.   但这也是文件头变得更复杂(对于我们来说是坏事,  但这正是恶意代码想要的结果)</p>
+<p>我们使用Stud_PE查看二进制试图</p>
+<p>首先在Headers中点击下面那个红框</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%204.png" alt="Untitled"></p>
+<p>我们可以看到Stud识别出了两个重要成员,  这就是他优于PEview的地方</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%205.png" alt="Untitled"></p>
+<p>这两个重要成员:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">e_magic:   魔术MZ</span><br><span class="line">e_lfanew:   下一个exe头的地址</span><br></pre></td></tr></table></figure>
+
+<p>其余的DOS头成员不重要(书中想表达的更多是,  它们是可以覆盖掉的)</p>
+<p>正常来说e_lfanew = DOS头大小(40) + DOS存根(一般为A0) = E0</p>
+<p>但upack中的e_lfanew指向的地址为10,  也就是DOS头中</p>
+<p>这并不违背PE规范,  而且可以让DOS头和PE文件头重叠在一起节省空间,  并让一些软件无法识别出PE头的内容.</p>
+<h2 id="18-5-2-IMAGE-FILE-HEADER-文件头-SizeOfOptionalHeader-可选头的大小"><a href="#18-5-2-IMAGE-FILE-HEADER-文件头-SizeOfOptionalHeader-可选头的大小" class="headerlink" title="18.5.2    IMAGE_FILE_HEADER(文件头).SizeOfOptionalHeader(可选头的大小)"></a>18.5.2    IMAGE_FILE_HEADER(文件头).SizeOfOptionalHeader(可选头的大小)</h2><p>修改可选头中的成员SizeOfOptionalHeader,  可以使可选头预留出内存空间,  来向文件头中插入解码代码.</p>
+<p>原本SizeOfOptionalHeader大小为E0,  upack将其改成148</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%206.png" alt="Untitled"></p>
+<ul>
+<li>疑问:  既然可选头结构体已经固定为E0,  为何多此一举在文件头中有一个SizeOfOptionalHeader来描述</li>
+<li>回答:  因为<strong>原本的意图</strong>是有多种可选头, 其大小也不同,  所以有这个SizeOfOptionalHeader</li>
+</ul>
+<p>从平常的PE来看,  节区头好像必须<strong>紧挨</strong>着可选头才对.  但是它的实际位置是由成员值决定的:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可选头的起始地址(IMAGE_SECTION_HEADER) + 可选头大小(SizeOfOptionalHeader) = 节区头起始地址</span><br></pre></td></tr></table></figure>
+
+<p>也就是说我们修改了SizeOfOptionalHeader就可以让它们中间插入解码代码,  而不是贴贴.</p>
+<p>在了解了上面的操作之后,  我们也要明白upack的意图是:    把PE头变形,  然后通过改变成员值来压缩或者预留空间,  并向预留空间中插入解码代码.</p>
+<p>可选头的结束地址:    D7,    节区头的起始地址:    170,  中间的就是解码代码,  我们看看</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%207.png" alt="Untitled"></p>
+<p>使用调试器查看其汇编代码(但是我的OD打开不了),  但是只用知道这个是解码代码即可,  有些软件识别不出来,  以为是文件就会导致程序无法正常运行.</p>
+<h2 id="18-5-3-IMAGE-OPTIONAL-HEADER-可选头-NumberOfRvaAndSizes"><a href="#18-5-3-IMAGE-OPTIONAL-HEADER-可选头-NumberOfRvaAndSizes" class="headerlink" title="18.5.3    IMAGE_OPTIONAL_HEADER(可选头).NumberOfRvaAndSizes"></a>18.5.3    IMAGE_OPTIONAL_HEADER(可选头).NumberOfRvaAndSizes</h2><p>从Stud中看到可选头的成员NumberOfRvaAndSizes也发生了改变.  该成员指出了DataDirectory结构体数组的元素个数.(重要内容有导入导出表的地址, 资源地址).  原本有0x10个,  变为了A个.</p>
+<p>我们可以看看各个元素的描述:</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%208.png" alt="Untitled"></p>
+<p>A号元素以后的元素将会被覆盖.  可见upack对文件的压缩非常巧妙.</p>
+<p>接下来看到IMAGE_DATA_DIRECTORY,  使用HED跟Stud都可以</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%209.png" alt="Untitled"></p>
+<p>十六进制视图中的蓝色区域就是DataDirectory区域,  后面的就是Upack的预留空间.</p>
+<p>上面OD运行不了就是因为upack修改了NumberOfRvaAndSizes</p>
+<h2 id="18-5-4-IMAGE-SECTION-HEADER-节区头"><a href="#18-5-4-IMAGE-SECTION-HEADER-节区头" class="headerlink" title="18.5.4    IMAGE_SECTION_HEADER(节区头)"></a>18.5.4    IMAGE_SECTION_HEADER(节区头)</h2><p>节区头IMAGE_SECTION_HEADER结构体中,  Upack会把自身数据<strong>覆盖</strong>到运行不需要的成员中.</p>
+<p>上面讲到过,  节区头的起始地址为:    170</p>
+<p>我们使用HED查看</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2010.png" alt="Untitled"></p>
+<p>上图为一个节区头IMAGE_SECTION_HEADER结构体,  其中有很多成员都是运行时不需要的,  可以覆盖.</p>
+<h2 id="18-5-5-重叠节区"><a href="#18-5-5-重叠节区" class="headerlink" title="18.5.5    重叠节区"></a>18.5.5    重叠节区</h2><p>除了重叠节区头,  Upack还可以重叠节区</p>
+<p>我们在Stud中查看</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2011.png" alt="Untitled"></p>
+<p>发现:</p>
+<ul>
+<li>第一跟第三节区起始偏移相同,  都为10</li>
+<li>第一跟第三节区文件中大小相同</li>
+</ul>
+<p>因为是映射关系,  所以硬盘中的偏移描述被改变,  程序并不会报错,  因为影响不了虚拟内存.</p>
+<p>下图左侧为节区信息,  右图为内存信息</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2012.png" alt="Untitled"></p>
+<p>根据节区头的描述,  装载器会把文件偏移0 ~ 1FF的区域分别映射到3个不同的内存位置(文件头0开始,  第一第三节区10开始)</p>
+<p>需要注意的是第一个节区<strong>在内存中</strong>的区域大小为14000,  与文件SizeOfImage中有相同的值.  也就是说,  <strong>第二节区的文件映像会被解压缩到第一个节区</strong>,  </p>
+<p>注意,   注意,  注意:  原本的三个节区会被解压到上图中的第一节区</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2013.png" alt="Untitled"></p>
+<p>总结一下:  原本notepad的三个节区,  被压缩到upack的第二个(大)节区,  解压时被解压到第一个(大)节区</p>
+<h2 id="18-5-6-RVA-to-RAW"><a href="#18-5-6-RVA-to-RAW" class="headerlink" title="18.5.6   RVA to RAW"></a>18.5.6   RVA to RAW</h2><p>许多程序无法识别Upack的原因在于:  无法进行正确的RVA → RAW的变换,  Upack的作者通过发现装载器的bug实现的.</p>
+<p>复习一下RVA → RAW变换的常规方法(第十三章-第四小结)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">换算公式:</span><br><span class="line">RAW - PointerToRawData = RVA - VirtualAddress</span><br><span class="line"></span><br><span class="line">可推出:</span><br><span class="line">Raw = RVA - VirtualAddress + PointerToRawData</span><br><span class="line"></span><br><span class="line">RAW是内存中的地址（物理地址）</span><br><span class="line">RVA是磁盘中的地址（虚拟地址）</span><br><span class="line">virtualaddress是内存中节区基址（也是节区头的一个成员）,  注意这个VA指的是节区头结构体的成员</span><br><span class="line">而不是我们平常理解的VA(虚拟地址),  它也是用RVA来表示的.</span><br><span class="line">pointertorawdata是磁盘中节区基址 </span><br></pre></td></tr></table></figure>
+
+<p>从可选头中的AddressOfEntryPoint成员,  我们知道了入口点的地址 = 1018</p>
+<p>再从上图我们知道了.text节的RVA = 1000(入口点肯定在.text)</p>
+<p>同时前面有了第一节区的文件起始地址为10</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2014.png" alt="Untitled"></p>
+<p>我们就可以通过公式得出RAW = 1018 - 1000 + 10 = 28</p>
+<p>我们查看28偏移处</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2015.png" alt="Untitled"></p>
+<p>为一个字符串,  明显不是入口点</p>
+<p>这是就要知道一个基址,  就是我们前面提到的粒度FileAilgnment,  节区的位置应该要向这个成员值对齐,  在upack压缩后的unotepad中,  FileAilgnment = 200,  而.text起始地址PointerToRawData应该为FileAilgnment的整数被,  所以在装载器中,  PointerToRawData = 10会变为PointerToRawData = 0</p>
+<p>我们再次使用公式:  RAW = 1018 - 1000 + 0 = 18</p>
+<p>我们在该地址处得到了我们需要的汇编代码</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2016.png" alt="Untitled"></p>
+<h2 id="18-5-7-导入表-IMAGE-IMPORT-DESCRIPTOR"><a href="#18-5-7-导入表-IMAGE-IMPORT-DESCRIPTOR" class="headerlink" title="18.5.7    导入表(IMAGE_IMPORT_DESCRIPTOR)"></a>18.5.7    导入表(IMAGE_IMPORT_DESCRIPTOR)</h2><p>Upack改动了导入表(Import Table)</p>
+<p>下面Stud是查看导入表的地址,  前四个字节为起始地址,  后四个为大小</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2017.png" alt="Untitled"></p>
+<p>起始地址为RVA = 0191EE,  我们需要进行变换成RAW</p>
+<p>先得知道VirtualAddress = 19000</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2018.png" alt="Untitled"></p>
+<p>第三节的RawOffset跟上面的第一节区一样被化为0</p>
+<p>所以RAW = 191EE - 19000 + 0 = 1EE</p>
+<p>使用HED查看地址1EE</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2019.png" alt="Untitled"></p>
+<p>PE规范中,  导入表是IMAGE_IMPORT_DESCRIPTOR的结构体数组,  最后以NULL结构体结尾. 图中红框为第一个结构体,  但是其下方既不是IMAGE_IMPORT_DESCRIPTOR,  也不是NULL.</p>
+<p>正常来说应该会错误,  但是在地址200处为文件第三节区的结尾.  也就是说 ,   200后面的部分不会被映射到第三节区域,  当映射完成时,  第一个结构体后面就是一个NULL结构体了.</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2020.png" alt="Untitled"></p>
+<p>内存中剩下的第三节区部分(27200 ~ 28000)全部填充为0;</p>
+<h2 id="18-5-8-导入地址表"><a href="#18-5-8-导入地址表" class="headerlink" title="18.5.8   导入地址表"></a>18.5.8   导入地址表</h2><p>我们通过分析IAT来查看导入了哪些DLL的API</p>
+<p>一个IMAGE_IMPORT_DESCRIPTOR为一个库,  查看其成员</p>
+<ul>
+<li>INT = 0</li>
+<li>Name = 2</li>
+<li>IAT = 11E8</li>
+</ul>
+<p>首先Name的RVA = 2,  位于头区域,  所以其RAW = 2</p>
+<p>使用HED查看</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2021.png" alt="Untitled"></p>
+<p>因为INT(导入名称表) = 0(RVA),  不好跟,  所以我们跟踪IAT(因为一般二者都指向的是同一个地址)</p>
+<p>RAW = 11E8 - 1000 + 0 = 1E8</p>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2022.png" alt="Untitled"></p>
+<p>框选部分就是IAT域,  同时也作为INT使用.  也就是说,  这里的指针都指向名称字符串,  结束为NULL.</p>
+<ul>
+<li>第一个字符串地址:   28</li>
+<li>第二个字符串地址:   BE</li>
+</ul>
+<p><img src="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2016542/Untitled%2023.png" alt="Untitled"></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LamのCrow</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/03/28/逆向核心工程原理-第 16542/">http://example.com/2022/03/28/逆向核心工程原理-第 16542/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">LamのCrow</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86/">逆向核心工程原理</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2022/03/26/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%20cae84/"><span>逆向核心工程原理-17</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s4.ax1x.com/2021/12/06/oy2VdH.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2021 - 2022 By LamのCrow</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="footer_custom_text">追求幸福</div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"superSample":2,"width":210,"height":420,"position":"right","hOffset":0,"vOffset":-20},"log":false,"tagMode":false});</script></body></html>
