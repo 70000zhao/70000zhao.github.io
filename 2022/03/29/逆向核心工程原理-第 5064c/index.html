@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="逆向核心工程原理-20"><meta name="keywords" content="逆向核心工程原理"><meta name="author" content="LamのCrow"><meta name="copyright" content="LamのCrow"><title>逆向核心工程原理-20 | LamのCrow</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%E4%BA%8C%E5%8D%81%E7%AB%A0-%E2%80%9D%E5%86%85%E5%B5%8C%E8%A1%A5%E4%B8%81%E2%80%9D%E7%BB%83%E4%B9%A0"><span class="toc-number">1.</span> <span class="toc-text">逆向核心工程原理-第二十章-”内嵌补丁”练习</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#20-1-%E5%86%85%E5%B5%8C%E8%A1%A5%E4%B8%81"><span class="toc-number">2.</span> <span class="toc-text">20.1    内嵌补丁</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#20-2-%E7%BB%83%E4%B9%A0-Patchme"><span class="toc-number">3.</span> <span class="toc-text">20.2    练习:   Patchme</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#20-3-%E8%B0%83%E8%AF%95-%E6%9F%A5%E7%9C%8B%E4%BB%A3%E7%A0%81%E6%B5%81"><span class="toc-number">4.</span> <span class="toc-text">20.3    调试:  查看代码流</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#20-4-%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84"><span class="toc-number">5.</span> <span class="toc-text">20.4    代码结构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#20-5-%E2%80%9C%E5%86%85%E5%B5%8C%E8%A1%A5%E4%B8%81%E2%80%9D%E7%BB%83%E4%B9%A0"><span class="toc-number">6.</span> <span class="toc-text">20.5    “内嵌补丁”练习</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#20-5-1-%E8%A1%A5%E4%B8%81%E4%BB%A3%E7%A0%81%E8%AE%BE%E7%BD%AE%E5%9C%A8%E4%BD%95%E5%A4%84"><span class="toc-number">6.1.</span> <span class="toc-text">20.5.1    补丁代码设置在何处</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#20-5-2-%E5%88%B6%E4%BD%9C%E8%A1%A5%E4%B8%81%E4%BB%A3%E7%A0%81"><span class="toc-number">6.2.</span> <span class="toc-text">20.5.2    制作补丁代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#20-5-3-%E6%89%A7%E8%A1%8C%E8%A1%A5%E4%B8%81%E4%BB%A3%E7%A0%81"><span class="toc-number">6.3.</span> <span class="toc-text">20.5.3    执行补丁代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#20-5-4-%E7%BB%93%E6%9E%9C%E7%A1%AE%E8%AE%A4"><span class="toc-number">6.4.</span> <span class="toc-text">20.5.4    结果确认</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s4.ax1x.com/2021/12/07/oyWTJA.jpg"></div><div class="author-info__name text-center">LamのCrow</div><div class="author-info__description text-center">欢迎交流!!!</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">25</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">2</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" target="_blank" rel="noopener" href="https://space.bilibili.com/202089320">MyBIlibili</a><a class="author-info-links__name text-center" target="_blank" rel="noopener" href="https://sma11cc.github.io/">smallcc</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s4.ax1x.com/2021/12/06/oy2VdH.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">LamのCrow</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">逆向核心工程原理-20</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-03-29</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="逆向核心工程原理-第二十章-”内嵌补丁”练习"><a href="#逆向核心工程原理-第二十章-”内嵌补丁”练习" class="headerlink" title="逆向核心工程原理-第二十章-”内嵌补丁”练习"></a>逆向核心工程原理-第二十章-”内嵌补丁”练习</h1><span id="more"></span>
+
+<h1 id="20-1-内嵌补丁"><a href="#20-1-内嵌补丁" class="headerlink" title="20.1    内嵌补丁"></a>20.1    内嵌补丁</h1><p>“内嵌补丁”是”内嵌代码补丁”的(Inline Code Patch)的简称,  插入并运行”洞穴代码(Code Cave)”的代码补丁后,  对程序打补丁.</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled.png" alt="Untitled"></p>
+<p>注意执行顺序,  再解压过后再进行洞穴代码,  因为压缩后的数据修改跟容易报错.</p>
+<p>注意内嵌补丁,  普通的代码补丁</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%201.png" alt="Untitled"></p>
+<h1 id="20-2-练习-Patchme"><a href="#20-2-练习-Patchme" class="headerlink" title="20.2    练习:   Patchme"></a>20.2    练习:   Patchme</h1><p>先运行一下</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%202.png" alt="Untitled"></p>
+<p>点击确定</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%203.png" alt="Untitled"></p>
+<h1 id="20-3-调试-查看代码流"><a href="#20-3-调试-查看代码流" class="headerlink" title="20.3    调试:  查看代码流"></a>20.3    调试:  查看代码流</h1><p>使用OD打开</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%204.png" alt="Untitled"></p>
+<p>401007后面就是加密代码</p>
+<p>查看字符串</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%205.png" alt="Untitled"></p>
+<p>以上字符串都是经过加密的.</p>
+<p>我们跟进上面EP第二行的调用语句</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%206.png" alt="Untitled"></p>
+<p>我们继续跟进4020EF处调用40109B</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%207.png" alt="Untitled"></p>
+<p>以上这些代码就是解密循环,  是对4010F5到401248区域进行异或运算解密,  跟踪4010B0调用的4010BD又看到了另一个解密函数(就在上一个调用函数的下面)</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%208.png" alt="Untitled"></p>
+<p>4010C8处的异或运算解密401007到401085区域</p>
+<p>4010DB处的异或运算解密4010F5到401248区域</p>
+<p>可以看到第二解密的区域跟上面调用者的解密是一样的,  所以这个区域进行了双重加密</p>
+<p>4010BD函数结束后跳回原调用函数,  接着调用了401039处的函数</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%209.png" alt="Untitled"></p>
+<p>401046处的循环用于校验和计算.  </p>
+<ul>
+<li>首先401041处初始化EDX</li>
+<li>401046处使用ADD指令从特定区域以四个字节为单位读入值</li>
+<li>进行加法运算后存储在EDX寄存器</li>
+<li>有前面可以知道,  校验跟计算区域是一个双重加密区域,  可以推断明文就在这里</li>
+</ul>
+<p>然后来到OEP处, 这里我的OD好像识别错误,  并没有把这里当成指令来看</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2010.png" alt="Untitled"></p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2011.png" alt="Untitled"></p>
+<p>实际上这里是调用了API:  GetModuleHandleA()</p>
+<p>紧接着传入五个参数并调用DialogBoxParamA()函数,  注意下图不是结构体,  而是函数定义</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2012.png" alt="Untitled"></p>
+<p> 第四个参数lpDialogFunc用来指出DlgBoxProcedure的地址.</p>
+<p>对应的是PUSH  4010F5,  可以知道DlProc的地址为4010F5</p>
+<p>跟进</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2013.png" alt="Untitled"></p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2014.png" alt="Untitled"></p>
+<p>可以看到这个字符串都在双重加密的验证区域中,  所以我们修改时要注意修改后还能满足验证的条件.</p>
+<h1 id="20-4-代码结构"><a href="#20-4-代码结构" class="headerlink" title="20.4    代码结构"></a>20.4    代码结构</h1><p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2015.png" alt="Untitled"></p>
+<p>流程如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">EP进入</span><br><span class="line">		解密代码&#123;</span><br><span class="line">				B区域异或<span class="number">44</span></span><br><span class="line">				A区域异或<span class="number">7</span></span><br><span class="line">				B区域异或<span class="number">11</span>		</span><br><span class="line">	&#125;</span><br><span class="line">				解密后的A区域&#123;</span><br><span class="line">									检查B区域所有的值的总和</span><br><span class="line">									C区域<span class="number">17</span></span><br><span class="line">									跳转至OEP</span><br><span class="line">&#125;</span><br><span class="line">									</span><br><span class="line">						</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2016.png" alt="Untitled"></p>
+<h1 id="20-5-“内嵌补丁”练习"><a href="#20-5-“内嵌补丁”练习" class="headerlink" title="20.5    “内嵌补丁”练习"></a>20.5    “内嵌补丁”练习</h1><p>实际要打补丁的字符串在B区域,  就是经过双重加密的区域.</p>
+<p>步骤:</p>
+<ul>
+<li>找到插入代码的合适位置</li>
+<li>然后将A区域(第一个被解密的区域,  同时最后的相加检验跳转也在这个区域)的跳转目的地从OEP改为洞穴代码的起始</li>
+<li>写入洞穴代码来修改字符串</li>
+</ul>
+<h2 id="20-5-1-补丁代码设置在何处"><a href="#20-5-1-补丁代码设置在何处" class="headerlink" title="20.5.1    补丁代码设置在何处"></a>20.5.1    补丁代码设置在何处</h2><p>一般有三个:</p>
+<ul>
+<li>设置到文件空白区域</li>
+<li>拓展(延长)最后节区,  在尾巴写入</li>
+<li>添加新节区写入</li>
+</ul>
+<p>代码较少选第一种</p>
+<p>我们使用PEview看看第一个节区头</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2017.png" alt="Untitled"></p>
+<p>可以看到在磁盘中内存大小为280,  而剩下120个字节还是闲置,  所以可以在这里插入代码.</p>
+<p>注意在虚拟内存中节区对齐的1000,  磁盘中是200,  由于我们是要向文件中写入,  所以要用磁盘实际占用的来算</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2018.png" alt="Untitled"></p>
+<p>我们用HED看看</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2019.png" alt="Untitled"></p>
+<h2 id="20-5-2-制作补丁代码"><a href="#20-5-2-制作补丁代码" class="headerlink" title="20.5.2    制作补丁代码"></a>20.5.2    制作补丁代码</h2><p>使用OD,  运行到OEP处</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2020.png" alt="Untitled"></p>
+<p>首先使用空格汇编执行语句,  然后再Hex区域修改后面用来存储字符串的区域</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2021.png" alt="Untitled"></p>
+<p>OD把字符串当成汇编语句了,  不用担心调试器把字符串识别成代码,  因为前面会直接跳走.</p>
+<p>我们保存以上修改,  然后在新文件中修改跳转地址</p>
+<h2 id="20-5-3-执行补丁代码"><a href="#20-5-3-执行补丁代码" class="headerlink" title="20.5.3    执行补丁代码"></a>20.5.3    执行补丁代码</h2><p>最后一步就是将OEP跳转改为洞穴代码了</p>
+<p>我们前面分析知道了跳转的地址为401083,  但是注意该地址为单层加密过后的A区域.</p>
+<p>所以我们要修改的话,  必须将跳转的地址异或7</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2022.png" alt="Untitled"></p>
+<p>我们已经设置了跳转汇编代码</p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2023.png" alt="Untitled"></p>
+<p>知道了原本的值,  注意后面的0000不用,  因为这两个字节刚好超出了加密区域</p>
+<p>拆成十六进制形式:   E9   96   01     注意不用逆序,  逆序针对的是一个数据块,  这个是指令</p>
+<p>通过异或转换形式:   EE   91   06    这就是加密后的形式</p>
+<p>下面我们使用新的值,  也就是F9F801</p>
+<p>拆成十六进制形式:   E9   F8   01     </p>
+<p>通过异或转换形式:   EE   FF   06   这就是我们要重新填入的值(起始前面不用保存,  这里的修改也可OD进行)</p>
+<h2 id="20-5-4-结果确认"><a href="#20-5-4-结果确认" class="headerlink" title="20.5.4    结果确认"></a>20.5.4    结果确认</h2><p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2024.png" alt="Untitled"></p>
+<p><img src="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/Untitled%2025.png" alt="Untitled"></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LamのCrow</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/03/29/逆向核心工程原理-第 5064c/">http://example.com/2022/03/29/逆向核心工程原理-第 5064c/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">LamのCrow</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86/">逆向核心工程原理</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2022/03/28/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%20e8d4e/"><span>逆向核心工程原理-19</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s4.ax1x.com/2021/12/06/oy2VdH.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2021 - 2022 By LamのCrow</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="footer_custom_text">追求幸福</div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"superSample":2,"width":210,"height":420,"position":"right","hOffset":0,"vOffset":-20},"log":false,"tagMode":false});</script></body></html>
