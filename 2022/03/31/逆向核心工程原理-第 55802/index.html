@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="逆向核心工程原理-21"><meta name="keywords" content="逆向核心工程原理"><meta name="author" content="LamのCrow"><meta name="copyright" content="LamのCrow"><title>逆向核心工程原理-21 | LamのCrow</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%E4%BA%8C%E5%8D%81%E4%B8%80%E7%AB%A0-Windows%E4%BF%A1%E6%81%AF%E9%92%A9%E5%8F%96"><span class="toc-number">1.</span> <span class="toc-text">逆向核心工程原理-第二十一章-Windows信息钩取</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#21-1-%E9%92%A9%E5%AD%90-Hook"><span class="toc-number">2.</span> <span class="toc-text">21.1    钩子(Hook)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#21-2-%E6%B6%88%E6%81%AF%E9%92%A9%E5%AD%90"><span class="toc-number">3.</span> <span class="toc-text">21.2    消息钩子</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#21-3-SetWindowsHookEx"><span class="toc-number">4.</span> <span class="toc-text">21.3    SetWindowsHookEx()</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#21-4-%E9%94%AE%E7%9B%98%E6%B6%88%E6%81%AF%E9%92%A9%E5%8F%96%E7%BB%83%E4%B9%A0"><span class="toc-number">5.</span> <span class="toc-text">21.4    键盘消息钩取练习</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#21-4-1-%E7%BB%83%E4%B9%A0%E5%AE%9E%E4%BE%8BHookMain-exe"><span class="toc-number">5.1.</span> <span class="toc-text">21.4.1    练习实例HookMain.exe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#21-4-2-%E5%88%86%E6%9E%90%E6%BA%90%E4%BB%A3%E7%A0%81"><span class="toc-number">5.2.</span> <span class="toc-text">21.4.2    分析源代码.</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HookMain-cpp"><span class="toc-number">5.2.1.</span> <span class="toc-text">HookMain.cpp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#keyhook-dll%E6%96%87%E4%BB%B6%E6%BA%90%E7%A0%81"><span class="toc-number">5.2.2.</span> <span class="toc-text">keyhook.dll文件源码</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#21-5-%E8%B0%83%E8%AF%95HookMain-exe"><span class="toc-number">6.</span> <span class="toc-text">21.5    调试HookMain.exe</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#21-5-2-%E8%B0%83%E8%AF%95Notepad-exe%E8%BF%9B%E7%A8%8B%E5%86%85%E7%9A%84KeyHook-dll"><span class="toc-number">6.1.</span> <span class="toc-text">21.5.2    调试Notepad.exe进程内的KeyHook.dll</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s4.ax1x.com/2021/12/07/oyWTJA.jpg"></div><div class="author-info__name text-center">LamのCrow</div><div class="author-info__description text-center">欢迎交流!!!</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">26</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">2</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" target="_blank" rel="noopener" href="https://space.bilibili.com/202089320">MyBIlibili</a><a class="author-info-links__name text-center" target="_blank" rel="noopener" href="https://sma11cc.github.io/">smallcc</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s4.ax1x.com/2021/12/06/oy2VdH.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">LamのCrow</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">逆向核心工程原理-21</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-03-31</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="逆向核心工程原理-第二十一章-Windows信息钩取"><a href="#逆向核心工程原理-第二十一章-Windows信息钩取" class="headerlink" title="逆向核心工程原理-第二十一章-Windows信息钩取"></a>逆向核心工程原理-第二十一章-Windows信息钩取</h1><span id="more"></span>
+
+<h1 id="21-1-钩子-Hook"><a href="#21-1-钩子-Hook" class="headerlink" title="21.1    钩子(Hook)"></a>21.1    钩子(Hook)</h1><p>在计算机中”钩子”的意思是:    偷看或截取信息时所用的手段或工具.</p>
+<h1 id="21-2-消息钩子"><a href="#21-2-消息钩子" class="headerlink" title="21.2    消息钩子"></a>21.2    消息钩子</h1><p>计算机与用户之间的交互是通过消息(比如点击一个窗口最大化,  就是一个消息,  向程序输入一个字母,  也是一个消息)来互相传送的,  而媒介就是钩子,  所以我们就通过钩子(hook)来获取或者改变这些消息.</p>
+<p>下面是常规的Windows消息流:  </p>
+<ul>
+<li>发生键盘输入事件时,  WM_KEYDOWN(按键)消息被添加到<a href="%E7%B3%BB%E7%BB%9F%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97">OS message queue</a></li>
+<li>OS<strong>判断</strong>哪个程序中发生了事件,  从[OS message queue]中取出消息,  添加到相应程序的[application message queue]中.</li>
+<li>应用程序<strong>监视</strong>自身的[application message queue],  发现了新添加的WM_KEYDOWN消息,  调用相应的事件处理程序处理</li>
+</ul>
+<p><strong>OS消息队列</strong>与<strong>应用程序消息队列之间</strong>存在一条  ” <strong>钩链</strong> ”  (Hook Chain),  处于钩链中的键盘消息钩子会比应用程序先看到相应的消息,  可以查看或者修改消息,  也可以拦截消息.</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled.png" alt="Untitled"></p>
+<p><strong>注意链表调用钩子是有顺序的</strong></p>
+<h1 id="21-3-SetWindowsHookEx"><a href="#21-3-SetWindowsHookEx" class="headerlink" title="21.3    SetWindowsHookEx()"></a>21.3    SetWindowsHookEx()</h1><p>使用SetWindowsHookEx()可以实现消息钩子,  API定义:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">HHOOK <span class="title">SetWindowsHookEx</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">		<span class="keyword">int</span> idHook,      <span class="comment">//钩子类型</span></span></span></span><br><span class="line"><span class="params"><span class="function">		HOOKPROC Ipfn,      <span class="comment">//钩子过程</span></span></span></span><br><span class="line"><span class="params"><span class="function">		HINSTANCE hMod,      <span class="comment">//钩子过程所属的DLL句柄</span></span></span></span><br><span class="line"><span class="params"><span class="function">		DWORD dwThreadId      <span class="comment">//想要挂钩的线程ID(0 就是全局钩子,  所有进程满足条件都会被挂钩;</span></span></span></span><br><span class="line"><span class="params"><span class="function">													<span class="comment">//非0,  只针对一个线程的钩子)</span></span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>钩子过程(hook procedure)是由操作系统调用的回调函数.  (回调函数:   某个事件发生时被指定调用的函数).</p>
+<p>安装钩子的时候,  钩子需要存在于某个DLL内部,  该DLL的实例句柄即是参数hMod</p>
+<p>使用SetWindowsHookEx()设置好钩子后,  某个进程生成指定消息时,  操作系统(注意主语)会将相关的DLL文件强制注入相应进程,  然后调用注册的”钩子”过程(就是使用钩子).</p>
+<p>注入过程我们什么都不用干,  由操作系统完成.</p>
+<p>下面是设置钩子的流程:</p>
+<ul>
+<li>把钩子放到一个DLL中</li>
+<li>设置一个程序使用SetWindowsHookEx()设置钩子</li>
+<li>当有另一个进程发生一个符合触发钩子的事件,  DLL被操作系统注入到该进程中,  然后使用钩子</li>
+</ul>
+<h1 id="21-4-键盘消息钩取练习"><a href="#21-4-键盘消息钩取练习" class="headerlink" title="21.4    键盘消息钩取练习"></a>21.4    键盘消息钩取练习</h1><p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%201.png" alt="Untitled"></p>
+<h2 id="21-4-1-练习实例HookMain-exe"><a href="#21-4-1-练习实例HookMain-exe" class="headerlink" title="21.4.1    练习实例HookMain.exe"></a>21.4.1    练习实例HookMain.exe</h2><p>运行HookMain.exe</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%202.png" alt="Untitled"></p>
+<p>按下q即可退出程序,  但是在Win10环境可以运行,  但是退出时会卡住.  所以这里用的是xp虚拟机</p>
+<p>无法在notepad中输入任何东西</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%203.png" alt="Untitled"></p>
+<p>使用ProcessExplorer的搜索DLL功能找出我们钩子所在的DLL</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%204.png" alt="Untitled"></p>
+<p>在HookMain中键入q即可退出</p>
+<p>再次查找keyhook.dll,  发现没有进程中由keyhook.dll.</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%205.png" alt="Untitled"></p>
+<h2 id="21-4-2-分析源代码"><a href="#21-4-2-分析源代码" class="headerlink" title="21.4.2    分析源代码."></a>21.4.2    分析源代码.</h2><h3 id="HookMain-cpp"><a href="#HookMain-cpp" class="headerlink" title="HookMain.cpp"></a>HookMain.cpp</h3><p>主函数的源代码</p>
+<p>流程:</p>
+<ul>
+<li>加载KeyHook.dll文件</li>
+<li>然后调用HookStart()开始钩取</li>
+<li>输入”q”时退出</li>
+</ul>
+<h3 id="keyhook-dll文件源码"><a href="#keyhook-dll文件源码" class="headerlink" title="keyhook.dll文件源码"></a>keyhook.dll文件源码</h3><p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%206.png" alt="Untitled"></p>
+<p>流程:</p>
+<ul>
+<li>HookMain调用HookStart时,  SetWindowsHookEx()设置钩子</li>
+<li>当发生键入消息的时候,  keyhook.dll会注入到该进程</li>
+<li>然后运行dll中的keyboardproc(),  通过进程名拦截消息</li>
+</ul>
+<p>关键在标红框的地方,  这里会检查进程名,  如果是notepad就会截断消息,  如果不是就会把消息传入链表中下一个钩子</p>
+<p>注意这里截断的实现方法是:  不将消息传入下一个钩子(也可能下一个就是程序),  只是return 1,  这样消息消失了.</p>
+<h1 id="21-5-调试HookMain-exe"><a href="#21-5-调试HookMain-exe" class="headerlink" title="21.5    调试HookMain.exe"></a>21.5    调试HookMain.exe</h1><p>使用OD打开HookMian.exe</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%207.png" alt="Untitled"></p>
+<p>通过字符串查找”q to quit”</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%208.png" alt="Untitled"></p>
+<p>在起始位置401000下断点,  调试到这里.</p>
+<p>然后可以看到401001和401006处加载了KeyHook.dll</p>
+<p>然后是40104B处调用了CALL EBX指令,  就是调用了HookStart()</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%209.png" alt="Untitled"></p>
+<p>我们跟进HookStart()</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%2010.png" alt="Untitled"></p>
+<p>可以看到调用了100010EF处调用了SetWindowsHookExW函数,  </p>
+<p>前面的两个指令逆序压入了前两个指令</p>
+<ul>
+<li>上面的第二个参数就是钩子过程的函数(钩子过程就是钩子具体执行处理的函数),  我们要记下其起始地址:  10001020</li>
+<li>第一个参数为2 ,  代表WH_KEYBOARD键盘的钩子类型</li>
+</ul>
+<h2 id="21-5-2-调试Notepad-exe进程内的KeyHook-dll"><a href="#21-5-2-调试Notepad-exe进程内的KeyHook-dll" class="headerlink" title="21.5.2    调试Notepad.exe进程内的KeyHook.dll"></a>21.5.2    调试Notepad.exe进程内的KeyHook.dll</h2><p>首先调试notepad程序,  按下F9使其正常运行</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%2011.png" alt="Untitled"></p>
+<p>然后设置OD,  使得在载入新的DLL时调试中断</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%2012.png" alt="Untitled"></p>
+<p>然后再运行HookMain程序</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%2013.png" alt="Untitled"></p>
+<p>然后再在notepad中输入字符,  马上就会暂停并弹出模块界面,  可以看到第二条就是我们新载入的keyhook.dll</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%2014.png" alt="Untitled"></p>
+<p>我们双击keyhook.dll,  跳转到了其EP,  这里跟书中的不太一样,  钩子过程地址在59F1020,  但是因为偏移是一样的所以问题不大.</p>
+<p><img src="/2022/03/31/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%2055802/Untitled%2015.png" alt="Untitled"></p>
+<p>我们在59F1020地址处打下断点.  F9继续运行到59F1020处即是我们的钩子</p>
+<p>流程:</p>
+<ul>
+<li>使用OD运行notepad</li>
+<li>打开在选项”在导入新模块时中断”</li>
+<li>运行KeyLogger.exe,  安装钩子</li>
+<li>在notepad中使用键盘输入 → 发生键盘事件</li>
+<li>KeyLogger.dll被注入到notepad中</li>
+<li>在钩子进程中设置断点</li>
+<li>调试</li>
+</ul>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LamのCrow</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/03/31/逆向核心工程原理-第 55802/">http://example.com/2022/03/31/逆向核心工程原理-第 55802/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">LamのCrow</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86/">逆向核心工程原理</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2022/03/29/%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%8E%9F%E7%90%86-%E7%AC%AC%205064c/"><span>逆向核心工程原理-20</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s4.ax1x.com/2021/12/06/oy2VdH.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2021 - 2022 By LamのCrow</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="footer_custom_text">追求幸福</div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"superSample":2,"width":210,"height":420,"position":"right","hOffset":0,"vOffset":-20},"log":false,"tagMode":false});</script></body></html>
