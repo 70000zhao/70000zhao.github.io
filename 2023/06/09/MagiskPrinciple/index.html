@@ -1,0 +1,940 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Magisk原理分析(未完待续)"><meta name="keywords" content="Android"><meta name="author" content="LamのCrow"><meta name="copyright" content="LamのCrow"><title>Magisk原理分析(未完待续) | LamのCrow</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Magisk%E5%88%86%E6%9E%90-%E6%9C%AA%E5%AE%8C%E5%BE%85%E7%BB%AD"><span class="toc-number">1.</span> <span class="toc-text">Magisk分析(未完待续)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%89%A9%E5%B1%95-%E6%97%A9%E6%9C%9FROOT%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">[扩展]早期ROOT原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E4%BD%8D"><span class="toc-number">2.1.</span> <span class="toc-text">权限位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%E4%BD%8D"><span class="toc-number">2.1.1.</span> <span class="toc-text">文件权限位</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E7%9A%84UID"><span class="toc-number">2.2.</span> <span class="toc-text">Linux的UID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A9%E6%9C%9F%E7%9A%84ROOT%E6%9D%83%E9%99%90"><span class="toc-number">2.3.</span> <span class="toc-text">早期的ROOT权限</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8BROOT"><span class="toc-number">2.3.1.</span> <span class="toc-text">进程ROOT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ROOT%E6%9D%A1%E4%BB%B6"><span class="toc-number">2.3.2.</span> <span class="toc-text">ROOT条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AE%BE%E7%BD%AEsu%E6%96%87%E4%BB%B6"><span class="toc-number">2.3.3.</span> <span class="toc-text">环境变量设置su文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%90%86%E7%94%B1"><span class="toc-number">2.3.3.1.</span> <span class="toc-text">理由</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">2.3.3.2.</span> <span class="toc-text">问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%80%E6%9C%89%E8%80%85%E6%98%AFroot"><span class="toc-number">2.3.4.</span> <span class="toc-text">所有者是root</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#su%E6%9D%83%E9%99%90%E4%BD%8D%E4%B8%BA4775"><span class="toc-number">2.3.5.</span> <span class="toc-text">su权限位为4775</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86%E8%BF%87%E7%A8%8B"><span class="toc-number">2.3.6.</span> <span class="toc-text">原理过程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B0%E7%89%88Android%E5%AF%B9root%E6%8F%90%E6%9D%83%E7%9A%84%E9%99%90%E5%88%B6"><span class="toc-number">2.4.</span> <span class="toc-text">新版Android对root提权的限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B0%E7%89%88Android%E7%9A%84root%E6%96%B9%E6%A1%88"><span class="toc-number">2.5.</span> <span class="toc-text">新版Android的root方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.5.1.</span> <span class="toc-text">提权漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9ROM%E5%88%B7%E6%9C%BA"><span class="toc-number">2.5.2.</span> <span class="toc-text">修改ROM刷机</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Magisk%E5%8A%9F%E8%83%BD"><span class="toc-number">3.</span> <span class="toc-text">Magisk功能</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Root%E5%8E%9F%E7%90%86"><span class="toc-number">4.</span> <span class="toc-text">Root原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E5%88%86%E5%8C%BA%E8%A1%A8"><span class="toc-number">4.1.</span> <span class="toc-text">磁盘分区表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MBR"><span class="toc-number">4.1.1.</span> <span class="toc-text">MBR</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%BB%E5%86%99%E9%80%BB%E8%BE%91"><span class="toc-number">4.1.1.1.</span> <span class="toc-text">读写逻辑</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GPT"><span class="toc-number">4.1.2.</span> <span class="toc-text">GPT</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="toc-number">4.1.2.1.</span> <span class="toc-text">结构图</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%83%E5%B1%80"><span class="toc-number">4.1.2.2.</span> <span class="toc-text">布局</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%8C%BA%E8%A1%A8%E4%B8%8E%E5%90%AF%E5%8A%A8%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">4.1.3.</span> <span class="toc-text">分区表与启动的关系</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AF%E8%AF%AD"><span class="toc-number">4.2.</span> <span class="toc-text">术语</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Ramdisk"><span class="toc-number">4.2.1.</span> <span class="toc-text">Ramdisk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ramfs-tmpfs-rootfs"><span class="toc-number">4.2.2.</span> <span class="toc-text">ramfs,tmpfs,rootfs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#initrd"><span class="toc-number">4.2.3.</span> <span class="toc-text">initrd</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8init%E8%BF%9B%E7%A8%8B"><span class="toc-number">4.3.</span> <span class="toc-text">Linux内核启动init进程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F1"><span class="toc-number">4.3.1.</span> <span class="toc-text">方式1</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B"><span class="toc-number">4.3.1.1.</span> <span class="toc-text">过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9"><span class="toc-number">4.3.1.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">4.3.1.3.</span> <span class="toc-text">解决方案</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F2"><span class="toc-number">4.3.2.</span> <span class="toc-text">方式2</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B-1"><span class="toc-number">4.3.2.1.</span> <span class="toc-text">过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%9C"><span class="toc-number">4.3.2.2.</span> <span class="toc-text">结果</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F3"><span class="toc-number">4.3.3.</span> <span class="toc-text">方式3</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B-2"><span class="toc-number">4.3.3.1.</span> <span class="toc-text">过程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F4"><span class="toc-number">4.3.4.</span> <span class="toc-text">方式4</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B-3"><span class="toc-number">4.3.4.1.</span> <span class="toc-text">过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%9C-1"><span class="toc-number">4.3.4.2.</span> <span class="toc-text">结果</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F5"><span class="toc-number">4.3.5.</span> <span class="toc-text">方式5</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B-4"><span class="toc-number">4.3.5.1.</span> <span class="toc-text">过程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#init-mount-tree"><span class="toc-number">4.3.5.1.1.</span> <span class="toc-text">init_mount_tree()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#rest-init"><span class="toc-number">4.3.5.1.2.</span> <span class="toc-text">rest_init()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#do-basic-setup"><span class="toc-number">4.3.5.1.3.</span> <span class="toc-text">do_basic_setup()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#populate-rootfs"><span class="toc-number">4.3.5.1.4.</span> <span class="toc-text">populate_rootfs()</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F%E4%B8%80"><span class="toc-number">4.3.5.2.</span> <span class="toc-text">方式一</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#kernel-init-freeable"><span class="toc-number">4.3.5.2.1.</span> <span class="toc-text">kernel_init_freeable()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#prepare-namespace"><span class="toc-number">4.3.5.2.2.</span> <span class="toc-text">prepare_namespace()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#initrd-load"><span class="toc-number">4.3.5.2.3.</span> <span class="toc-text">initrd_load()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BE%80%E5%90%8E"><span class="toc-number">4.3.5.2.4.</span> <span class="toc-text">往后</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#run-init-process"><span class="toc-number">4.3.5.2.5.</span> <span class="toc-text">run_init_process()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%80%E5%90%8E"><span class="toc-number">4.3.5.2.6.</span> <span class="toc-text">最后</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F%E4%BA%8C"><span class="toc-number">4.3.5.3.</span> <span class="toc-text">方式二</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#kernel-init-freeable-1"><span class="toc-number">4.3.5.3.1.</span> <span class="toc-text">kernel_init_freeable()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#populate-initrd-image"><span class="toc-number">4.3.5.3.2.</span> <span class="toc-text">populate_initrd_image()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#kernel-init-freeable-2"><span class="toc-number">4.3.5.3.3.</span> <span class="toc-text">kernel_init_freeable()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#initrd-load-%E5%85%B3%E9%94%AE%E5%87%BD%E6%95%B0"><span class="toc-number">4.3.5.3.4.</span> <span class="toc-text">initrd_load() (关键函数)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#handle-initrd-%E5%85%B3%E9%94%AE%E5%87%BD%E6%95%B0"><span class="toc-number">4.3.5.3.5.</span> <span class="toc-text">handle_initrd() (关键函数)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#mount-root"><span class="toc-number">4.3.5.3.6.</span> <span class="toc-text">mount_root</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#run-init-peocess"><span class="toc-number">4.3.5.3.7.</span> <span class="toc-text">run_init_peocess</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.3.5.3.8.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F%E4%B8%89"><span class="toc-number">4.3.5.4.</span> <span class="toc-text">方式三</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%93%E6%9E%9C-2"><span class="toc-number">4.3.5.4.1.</span> <span class="toc-text">结果</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F%E5%9B%9B"><span class="toc-number">4.3.5.5.</span> <span class="toc-text">方式四</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#unpack-to-rootfs"><span class="toc-number">4.3.5.5.1.</span> <span class="toc-text">unpack_to_rootfs()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%A4%E6%96%AD"><span class="toc-number">4.3.5.5.2.</span> <span class="toc-text">判断</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">4.3.5.5.3.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F%E4%BA%94"><span class="toc-number">4.3.5.6.</span> <span class="toc-text">方式五</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-number">4.3.5.6.1.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">4.3.6.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Android%E5%90%AF%E5%8A%A8"><span class="toc-number">4.4.</span> <span class="toc-text">Android启动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MethodA"><span class="toc-number">4.4.1.</span> <span class="toc-text">MethodA</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#img%E4%B8%8E%E5%88%86%E5%8C%BA"><span class="toc-number">4.4.1.1.</span> <span class="toc-text">img与分区</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#boot-img%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90"><span class="toc-number">4.4.1.2.</span> <span class="toc-text">boot.img文件分析</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#boot-image-header%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">4.4.1.2.1.</span> <span class="toc-text">boot_image_header结构体</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%86%85%E5%AE%B9"><span class="toc-number">4.4.1.2.2.</span> <span class="toc-text">内容</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">4.4.1.3.</span> <span class="toc-text">启动方式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%A0%E9%80%92initrd"><span class="toc-number">4.4.1.3.1.</span> <span class="toc-text">传递initrd</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BDramdisk"><span class="toc-number">4.4.1.3.2.</span> <span class="toc-text">加载ramdisk</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BF%90%E8%A1%8Cinit"><span class="toc-number">4.4.1.3.3.</span> <span class="toc-text">运行init</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#recovery%E5%88%86%E5%8C%BA"><span class="toc-number">4.4.1.3.4.</span> <span class="toc-text">recovery分区</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95B"><span class="toc-number">4.4.2.</span> <span class="toc-text">方法B</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%86%E5%8F%B2"><span class="toc-number">4.4.2.1.</span> <span class="toc-text">历史</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%81%E7%A8%8B"><span class="toc-number">4.4.2.2.</span> <span class="toc-text">流程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#populate-rootfs-1"><span class="toc-number">4.4.2.2.1.</span> <span class="toc-text">populate_rootfs()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#prepare-namespage"><span class="toc-number">4.4.2.2.2.</span> <span class="toc-text">prepare_namespage()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#remount-partition"><span class="toc-number">4.4.2.2.3.</span> <span class="toc-text">remount_partition()</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95C"><span class="toc-number">4.4.3.</span> <span class="toc-text">方法C</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">4.4.3.1.</span> <span class="toc-text">原理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%A0%E9%80%92%E5%B9%B6%E4%BD%BF%E7%94%A8initrd"><span class="toc-number">4.4.3.1.1.</span> <span class="toc-text">传递并使用initrd</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Magisk-patch-ramdisk"><span class="toc-number">4.5.</span> <span class="toc-text">Magisk patch ramdisk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Magisk-init"><span class="toc-number">4.6.</span> <span class="toc-text">Magisk init</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B1%BB"><span class="toc-number">4.6.1.</span> <span class="toc-text">分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Type-1"><span class="toc-number">4.6.1.1.</span> <span class="toc-text">Type 1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Type-2"><span class="toc-number">4.6.1.2.</span> <span class="toc-text">Type 2</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Type-3"><span class="toc-number">4.6.1.3.</span> <span class="toc-text">Type 3</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Type-4"><span class="toc-number">4.6.1.4.</span> <span class="toc-text">Type 4</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E7%B3%BB%E7%BB%9F"><span class="toc-number">4.6.2.</span> <span class="toc-text">修改系统</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%92%88%E5%AF%B9MethodC"><span class="toc-number">4.6.2.1.</span> <span class="toc-text">针对MethodC</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#FirstStageInit"><span class="toc-number">4.6.2.1.1.</span> <span class="toc-text">FirstStageInit</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#FirstStageInit-prepare"><span class="toc-number">4.6.2.1.2.</span> <span class="toc-text">FirstStageInit::prepare()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#prepare-data"><span class="toc-number">4.6.2.1.3.</span> <span class="toc-text">prepare_data()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#restore-ramdisk-init"><span class="toc-number">4.6.2.1.4.</span> <span class="toc-text">restore_ramdisk_init</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#magisk-cpio-patch"><span class="toc-number">4.6.2.1.5.</span> <span class="toc-text">magisk_cpio::patch()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#BaseInit-exec-init"><span class="toc-number">4.6.2.1.6.</span> <span class="toc-text">BaseInit::exec_init()</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E4%BF%AE%E6%94%B9"><span class="toc-number">4.7.</span> <span class="toc-text">系统修改</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E6%9C%8D%E5%8A%A1"><span class="toc-number">4.7.1.</span> <span class="toc-text">添加服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SELinux"><span class="toc-number">4.7.2.</span> <span class="toc-text">SELinux</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B6%E4%BB%96-arm%E5%B9%B3%E5%8F%B0boot%E5%8D%8F%E8%AE%AE-%E7%BF%BB%E8%AF%91"><span class="toc-number">5.</span> <span class="toc-text">[其他]arm平台boot协议(翻译)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%90%AF%E5%8A%A8%E5%92%8C%E5%88%9D%E5%A7%8B%E5%8C%96RAM"><span class="toc-number">5.1.</span> <span class="toc-text">1. 启动和初始化RAM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%80%E4%B8%AA%E4%B8%B2%E5%8F%A3"><span class="toc-number">5.2.</span> <span class="toc-text">2. 初始化一个串口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%99%A8%E7%B1%BB%E5%9E%8B"><span class="toc-number">5.3.</span> <span class="toc-text">3. 检测机器类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%AE%BE%E7%BD%AE%E5%BC%95%E5%AF%BC%E6%95%B0%E6%8D%AE"><span class="toc-number">5.4.</span> <span class="toc-text">4. 设置引导数据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tagged-list%E4%BC%A0%E9%80%81%E6%96%B9%E5%BC%8F"><span class="toc-number">5.4.1.</span> <span class="toc-text">tagged list传送方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dtb%E6%98%A0%E5%83%8F%E4%BC%A0%E9%80%81%E6%96%B9%E5%BC%8F"><span class="toc-number">5.4.2.</span> <span class="toc-text">dtb映像传送方式</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0%E6%96%87%E7%AB%A0"><span class="toc-number">6.</span> <span class="toc-text">学习文章</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s4.ax1x.com/2021/12/07/oyWTJA.jpg"></div><div class="author-info__name text-center">LamのCrow</div><div class="author-info__description text-center">欢迎交流!!!</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">40</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">5</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" target="_blank" rel="noopener" href="https://space.bilibili.com/202089320">MyBIlibili</a><a class="author-info-links__name text-center" target="_blank" rel="noopener" href="https://sma11cc.github.io/">smallcc</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s4.ax1x.com/2021/12/06/oy2VdH.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">LamのCrow</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Magisk原理分析(未完待续)</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2023-06-09</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="Magisk分析-未完待续"><a href="#Magisk分析-未完待续" class="headerlink" title="Magisk分析(未完待续)"></a>Magisk分析(未完待续)</h1><span id="more"></span>
+
+<p>**[扩展]**主题表示理解Magisk原理所需要的前提知识, 并不与Magisk直接相关.</p>
+<h1 id="扩展-早期ROOT原理"><a href="#扩展-早期ROOT原理" class="headerlink" title="[扩展]早期ROOT原理"></a>[扩展]早期ROOT原理</h1><h2 id="权限位"><a href="#权限位" class="headerlink" title="权限位"></a>权限位</h2><h3 id="文件权限位"><a href="#文件权限位" class="headerlink" title="文件权限位"></a>文件权限位</h3><p>文件权限位总共四个:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod       <span class="number">4</span>          <span class="number">7</span>       <span class="number">7</span>       <span class="number">5</span>        /system/bin/su</span><br><span class="line">          特殊权限位   所有者   所属组  其他用户</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>特殊权限位(3位):</p>
+<ul>
+<li><p><strong>SUID位 (Set User ID)</strong></p>
+<ul>
+<li><p>取值: 4</p>
+</li>
+<li><p>作用:</p>
+<ul>
+<li><strong>对于文件</strong>: 设置了SUID位时, <strong>在执行过程中将以文件所有者的身份运行</strong>. 这样普通用户也可以在执行过程中<strong>获得root才能执行的操作</strong>.</li>
+<li><strong>对于目录</strong>: 设置了SUID位时, 无论是以哪个用户创建文件或目录, 它们<strong>都将继承SUID目录的所有者, 并获得与所有者相同的权限</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>SGID位 (Set Group ID)</p>
+<ul>
+<li>取值: 2</li>
+<li>作用: 当可执行文件设置了 SGID 位时, <strong>在执行过程中将以文件所属组的身份运行</strong>. <strong>类似SUID</strong></li>
+</ul>
+</li>
+<li><p>粘滞位 (Sticky Bit)</p>
+<ul>
+<li>取值: 1</li>
+<li>作用: 主要应用于目录, 当目录设置了粘滞位后, 只有目录的所有者, 文件的所有者和超级用户才能删除或移动该目录下的文件. 其他用户虽然对目录有写权限, 但无法删除或移动其他用户的文件.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>其他权限位 (所有者, 所属组, 其他用户)</p>
+<ul>
+<li>读r</li>
+<li>写w</li>
+<li>执行x</li>
+</ul>
+</li>
+</ul>
+<h2 id="Linux的UID"><a href="#Linux的UID" class="headerlink" title="Linux的UID"></a>Linux的UID</h2><p>Linux内核为每个进程维护三个UID值:</p>
+<ul>
+<li><p>RUID(实际用户ID)</p>
+<ul>
+<li>含义: 当前登录的UID</li>
+</ul>
+</li>
+<li><p>EUID(有效用户ID)</p>
+<ul>
+<li>含义: 当前执行程序的UID</li>
+<li>一般情况下: EUID = RUID</li>
+<li>程序设置了SUID权限位[^1]: <strong>EUID = 程序的拥有者</strong></li>
+</ul>
+</li>
+<li><p>SUID(保存的设置用户ID)</p>
+<ul>
+<li>含义: EUID的一个副本, 跟SUID权限位[^1]有关</li>
+</ul>
+</li>
+</ul>
+<h2 id="早期的ROOT权限"><a href="#早期的ROOT权限" class="headerlink" title="早期的ROOT权限"></a>早期的ROOT权限</h2><p>早期对于/system/bin目录下的文件并没有太多的限制, 所以可以直接通过SUID权限位的su文件来获取shell的root权限</p>
+<h3 id="进程ROOT"><a href="#进程ROOT" class="headerlink" title="进程ROOT"></a>进程ROOT</h3><p><strong>一个进程拥有root权限的标志: EUID = 0</strong></p>
+<h3 id="ROOT条件"><a href="#ROOT条件" class="headerlink" title="ROOT条件"></a>ROOT条件</h3><p>Magisk的目的之一: 获取ROOT权限.</p>
+<p>那也得知道什么是ROOT, 怎样才算获取ROOT:</p>
+<ul>
+<li><p>条件一: 保证手机的/system/bin下有<strong>su</strong></p>
+</li>
+<li><p>条件二: su的所有者是<strong>root</strong></p>
+</li>
+<li><p>条件三: 保证su的权限位[^2]是: 4775</p>
+<ul>
+<li>SUID权限: 1</li>
+<li>所有者: 读写, 执行</li>
+<li>所属组: 读写, 执行</li>
+<li>其他用户: 读, 执行</li>
+</ul>
+</li>
+</ul>
+<p>‍</p>
+<p>下面分步解析各条件</p>
+<h3 id="环境变量设置su文件"><a href="#环境变量设置su文件" class="headerlink" title="环境变量设置su文件"></a>环境变量设置su文件</h3><p>在Linux中, /system/bin为环境变量, 即该目录下的可执行文件在其他路径下仍然可以执行.</p>
+<h4 id="理由"><a href="#理由" class="headerlink" title="理由"></a>理由</h4><ul>
+<li><strong>该目录下可以设置文件的SUID权限位 (最重要的原因)</strong></li>
+<li>/system/bin为环境变量</li>
+</ul>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><ul>
+<li>问题: su能否放在/data/tmp目录下, 然后用绝对路径来执行</li>
+<li>回答: 不行, 因为data目录挂载时规定了文件不能有SUID权限位, <strong>不满足</strong>ROOT条件[^3]的<strong>条件三</strong></li>
+</ul>
+<h3 id="所有者是root"><a href="#所有者是root" class="headerlink" title="所有者是root"></a>所有者是root</h3><p>这里需要理解SUID的作用: 当SUID置一时, 其他用户运行该文件时, EUID会设置为文件的所有者.</p>
+<p>所以当<strong>其他进程</strong>运行su的时候, EUID = 所有者 = root. 就相当于获取了root权限</p>
+<h3 id="su权限位为4775"><a href="#su权限位为4775" class="headerlink" title="su权限位为4775"></a>su权限位为4775</h3><p>最重要的是: 4 -&gt; SUID权限位置一, 其作用在上面也讲了, 用于使进程的EUID设置为root.</p>
+<h3 id="原理过程"><a href="#原理过程" class="headerlink" title="原理过程"></a>原理过程</h3><ul>
+<li><p>开启一个shell进程</p>
+<ul>
+<li>EUID: 当前用户</li>
+<li>SUID: 当前用户</li>
+<li>RUID: 当前用户</li>
+</ul>
+</li>
+<li><p>当shell运行su进程时</p>
+<ul>
+<li><strong>运行su的期间</strong>, 由于<strong>su的SUID权限位</strong>, shell的EUID = su的所有者 = root.</li>
+<li>注意: 只在<strong>运行su的期间</strong>, shell获取了root权限, <strong>所以提权只是暂时的</strong></li>
+<li>持久提权需要<strong>su的逻辑</strong>(这也是为什么我们需要使用su文件, 而不是一个权限位为4775的helloworld小程序)</li>
+</ul>
+</li>
+<li><p>su(switch user)的逻辑:</p>
+<ul>
+<li>su检查当前进程的RUID, SUID权限位只修改了shell的EUID = root, 所以<strong>RUID = AID_SHELL</strong></li>
+<li>su发现没有传入参数, <strong>默认切换为root</strong>, 即uid = 0, gid = 0;</li>
+<li>su调用setuid(uid), 而uid = 0, 所以设置了shell的RUID = 0, 且SUID = 0</li>
+</ul>
+</li>
+<li><p>su逻辑执行完毕, 这时shell的RUID, EUID, SUID都等于0</p>
+<ul>
+<li>EUID在su执行完毕后恢复为SUID, 但SUID被设置为0, 所以EUID恢复后仍然等于0</li>
+<li>至此shell获得了持久root权限</li>
+</ul>
+</li>
+</ul>
+<h2 id="新版Android对root提权的限制"><a href="#新版Android对root提权的限制" class="headerlink" title="新版Android对root提权的限制"></a>新版Android对root提权的限制</h2><ul>
+<li><p>Android4.3 -: 就是通过上面讲的SUID权限位su文件来进行提权</p>
+</li>
+<li><p>ANdroid4.3 +: Android系统增加了对于root提权的防护</p>
+<ul>
+<li><strong>nosuid目录:</strong> /system和/data以<code>nosuid option</code>​方式挂载, 这在前面也讲过, 即目录下的文件不能有SUID权限位</li>
+<li><strong>Zygote:</strong> app进程由<strong>Zygote进程fork</strong>产生. <strong>Zygote进程设置了NO_NEW_PRIVS标志</strong>, 其<strong>子进程也带有NO_NEW_PRIVS标志</strong>, 带有<strong>该标识进程的EUID不受SUID影响</strong>.</li>
+<li><strong>SELinux:</strong> 限制EUID为root的进程的行为</li>
+</ul>
+</li>
+</ul>
+<h2 id="新版Android的root方案"><a href="#新版Android的root方案" class="headerlink" title="新版Android的root方案"></a>新版Android的root方案</h2><p>针对新版Android更加强大的防护策略, 就有了其他的root方案:</p>
+<ul>
+<li>使用提权漏洞</li>
+<li>修改ROM刷机</li>
+</ul>
+<h3 id="提权漏洞"><a href="#提权漏洞" class="headerlink" title="提权漏洞"></a>提权漏洞</h3><p>普通app没有root权限, 无法实现上面root的三个条件.</p>
+<p>可以利用提权漏洞来root, 比如: zergRush漏洞, 就利用了一个拥有root权限的进程的栈溢出漏洞.</p>
+<h3 id="修改ROM刷机"><a href="#修改ROM刷机" class="headerlink" title="修改ROM刷机"></a>修改ROM刷机</h3><ul>
+<li>XPosed</li>
+<li>Magisk</li>
+</ul>
+<h1 id="Magisk功能"><a href="#Magisk功能" class="headerlink" title="Magisk功能"></a>Magisk功能</h1><ul>
+<li><p>ROOT权限获取和管理</p>
+<ul>
+<li>比如/system/xbin(Android文件系统[^4])目录下没有su, 我们可以刷入响应的模块, 在系统启动初期, 讲su映射到/system/xbin下来获取root</li>
+</ul>
+</li>
+<li><p>挂载功能多样的各种扩展模块</p>
+<ul>
+<li>替换字体, 指纹特效, 开机动画</li>
+</ul>
+</li>
+</ul>
+<h1 id="Root原理"><a href="#Root原理" class="headerlink" title="Root原理"></a>Root原理</h1><ul>
+<li><p><strong>systemless root</strong>: 不修改system分区的情况下, 实现<strong>su</strong>.</p>
+</li>
+<li><p>Magisk修补boot.img[^5], 把自己的文件挂在到根目录(Android13)[^6]下的:</p>
+<ul>
+<li>/sbin (Android10-)</li>
+<li>/dev/{random_folder} (Android11+)</li>
+</ul>
+</li>
+</ul>
+<h2 id="磁盘分区表"><a href="#磁盘分区表" class="headerlink" title="磁盘分区表"></a>磁盘分区表</h2><p>在系统启动的过程中, 会涉及到磁盘分区表的知识, 分区表将磁盘抽象为一个大的字节数组(跟内存相似), 但是是以扇区为单位(通常: 512 byte)</p>
+<p>常见的磁盘分区表:</p>
+<ul>
+<li>老式: MBR</li>
+<li>新式: GPT</li>
+</ul>
+<h3 id="MBR"><a href="#MBR" class="headerlink" title="MBR"></a>MBR</h3><p>全称Master Boot Record(主引导记录), 有两层含义:</p>
+<ul>
+<li>指开机启动的第一个扇区 (512 byte)</li>
+<li>指这种扇区分配的方式</li>
+</ul>
+<p>第一个扇区由两部分构成:</p>
+<ul>
+<li><p>bootstrap code area: 446 byte</p>
+<ul>
+<li>功能: 包含启动相关代码</li>
+</ul>
+</li>
+<li><p>partition table: 64byte</p>
+<ul>
+<li>功能: 分区表</li>
+</ul>
+</li>
+<li><p>最后两个字节: 0x55AA</p>
+<ul>
+<li>功能: MBR的标识</li>
+</ul>
+</li>
+</ul>
+<h4 id="读写逻辑"><a href="#读写逻辑" class="headerlink" title="读写逻辑"></a>读写逻辑</h4><p>有两种读写方式: </p>
+<ul>
+<li><p>老式: C/H/S(Cylinder/Head/Sector)</p>
+<ul>
+<li>以前读写的基本逻辑地址结构</li>
+</ul>
+</li>
+<li><p>新式: LBA(Logical Block Addressing)</p>
+<ul>
+<li>当前逻辑地址结构, <strong>抽象的程度更高</strong>, 将磁盘视为一个大的字节数组: [LBA0, LBA1, LBA2, …., LBAN]; 每个LBA大小通常为512 byte.</li>
+</ul>
+</li>
+</ul>
+<h3 id="GPT"><a href="#GPT" class="headerlink" title="GPT"></a>GPT</h3><p>全称: GUID Partition Table</p>
+<p>采用了前面的讲到的<strong>LBA逻辑区块地址</strong>.</p>
+<h4 id="结构图"><a href="#结构图" class="headerlink" title="结构图"></a>结构图</h4><img src="/2023/06/09/MagiskPrinciple/06/09/MagiskPrinciple/image-20230608104850-6dawsiq.png" class title="image">​
+
+<h4 id="布局"><a href="#布局" class="headerlink" title="布局"></a>布局</h4><ul>
+<li><p>LBA0: MBR</p>
+<ul>
+<li>功能: 出于兼容性考虑, LBA0仍然用作MBR</li>
+</ul>
+</li>
+<li><p>LBA1: 分区表头(Primary GPT Header)</p>
+<ul>
+<li>功能: 定义了硬盘的<strong>可用空间</strong>和分区表的<strong>项大小</strong>和<strong>数量</strong>. <strong>最多可以创建128个分区</strong>.</li>
+</ul>
+</li>
+<li><p>LBA2 ~ 33: 存储<strong>分区表项</strong></p>
+<ul>
+<li><p>每个分区表象的格式</p>
+<table>
+<thead>
+<tr>
+<th>起始(byte)</th>
+<th>长度(byte)</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>16</td>
+<td>分区类型</td>
+</tr>
+<tr>
+<td>16</td>
+<td>16</td>
+<td>分区GUID</td>
+</tr>
+<tr>
+<td>32</td>
+<td>8</td>
+<td>起始LBA(小端序)</td>
+</tr>
+<tr>
+<td>40</td>
+<td>8</td>
+<td>末尾LBA</td>
+</tr>
+<tr>
+<td>48</td>
+<td>8</td>
+<td>属性标签</td>
+</tr>
+<tr>
+<td>56</td>
+<td>72</td>
+<td>分区名<br></td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="分区表与启动的关系"><a href="#分区表与启动的关系" class="headerlink" title="分区表与启动的关系"></a>分区表与启动的关系</h3><ul>
+<li><p>bootloader会分析gpt分区结构</p>
+</li>
+<li><p>Linux内核也会扫描gpt分区表, 生成gendisk的分区表相关结构.</p>
+<ul>
+<li>检测到sda, sdb设备时会创建/sys/block/sda设备文件</li>
+</ul>
+</li>
+</ul>
+<h2 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h2><h3 id="Ramdisk"><a href="#Ramdisk" class="headerlink" title="Ramdisk"></a>Ramdisk</h3><p>有两种完全不同的含义:</p>
+<ul>
+<li><p>老式: <strong>RAM模拟硬盘技术</strong>, 即使用一部分的RAM来模拟一个硬盘, 从而提高文件访问速率. (常见的应用: 作为Web缓存)</p>
+</li>
+<li><p>Android: 指的是<strong>boot.img</strong>中的<strong>ramdisk文件</strong>, 和传统意义上的RAM模拟硬盘技术不是一个东西.</p>
+<ul>
+<li>ramdisk文件中包含了: Android系统启动所需的文件和目录的<strong>文件系统映像</strong>. 在内核将ramdisk.img从boot.img中解压出来后, 将其放在内存的临时文件系统中. 最后内核将根据ramdisk中的内容创建<strong>根文件系统</strong>并<strong>挂载到’/‘下</strong>.</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">注意: 为了便于区分两个完全不同的概念, 下文中使用`ramdisk`表示RAM模拟硬盘技术, ramdisk表示一个Android的ramdisk文件.</span><br></pre></td></tr></table></figure>
+
+<h3 id="ramfs-tmpfs-rootfs"><a href="#ramfs-tmpfs-rootfs" class="headerlink" title="ramfs,tmpfs,rootfs"></a>ramfs,tmpfs,rootfs</h3><p>都是虚拟文件系统, 以下是各自的特性:</p>
+<ul>
+<li><p>ramfs(随机访问存储文件系统)</p>
+<ul>
+<li><strong>基于内存</strong>的文件系统, <strong>文件和目录都保存在内存中</strong></li>
+<li>系统重启则会丢失数据</li>
+</ul>
+</li>
+<li><p>tmpfs(临时文件系统)</p>
+<ul>
+<li>基于内存的文件系统, 类似ramfs, 但是存储空间受限.</li>
+<li>使用虚拟内存, 可以动态调整大小.</li>
+<li>可以将数据持久化到磁盘中, 防止重启时数据丢失</li>
+</ul>
+</li>
+<li><p>rootfs(根文件系统)</p>
+<ul>
+<li>系统启动时的初始文件系统</li>
+<li>注意跟前面的<strong>根文件系统</strong>不是一个东西, 只是内核中的一个文件系统.</li>
+</ul>
+</li>
+</ul>
+<h3 id="initrd"><a href="#initrd" class="headerlink" title="initrd"></a>initrd</h3><p>全称: init ramdisk</p>
+<p>直译: 初始化ramdisk, 但是事实上这只是一种<strong>主流的启动方式</strong>.</p>
+<p>‍</p>
+<h2 id="Linux内核启动init进程"><a href="#Linux内核启动init进程" class="headerlink" title="Linux内核启动init进程"></a>Linux内核启动init进程</h2><h3 id="方式1"><a href="#方式1" class="headerlink" title="方式1"></a>方式1</h3><h4 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h4><p>Linux最原始的启动方式, 过程如下:</p>
+<ul>
+<li><p>创建一个格式化为ext4文件系统的disk.img文件, 作为根文件系统</p>
+</li>
+<li><p>创建一个程序init, 作为<strong>内核执行程序</strong>, 随便写一个hello world. <strong>然后挂载了disk.img后, 存入该文件系统中.</strong></p>
+</li>
+<li><p>使用qemu启动指定内核</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">qemu-system-x86_64 -kernel arch/x86_64/boot/bzImage -hda my_rootfs/root_disk/disk.img --append <span class="string">&quot;root=/dev/sda init=/init console=ttyS0&quot;</span> -nographic</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>–append: 传递给内核作为<strong>命令行参数</strong></p>
+<ul>
+<li>-hda: 指定硬盘映像, 即disk.img</li>
+<li>root: 指定<strong>根文件系统所在的设备</strong>, dev目录正常还没挂载, 只是习惯上的标识, 实际上内核只会找sda设备</li>
+<li>init=/init: 标识init作为内核执行程序</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>最后内核将sda作为跟文件系统所在设备, 以img文件作为文件系统, 同时执行init程序</p>
+</li>
+</ul>
+<h4 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h4><ul>
+<li>时代发展, 硬件变得复杂. 导致根文件系统可能在各种<strong>设备</strong>上. 甚至是网络文件系统, 还可能需要加解密. 如果这些都需要在内核驱动中去实现, 实现难度大, 还不一定用得上.</li>
+</ul>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p>增加一个<strong>中间层</strong>: <strong>初始根文件系统</strong></p>
+<p>内核先挂载一个初始根文件系统, 由初始根文件系统去<strong>加载合适的驱动</strong>并<strong>寻找最终根文件系统并挂载</strong>.</p>
+<p>挂载初始根文件系统的方式:</p>
+<ul>
+<li><code>ramdisk</code>​ (ramdisk模拟硬盘技术)</li>
+<li>ramfs</li>
+<li>tmpfs</li>
+<li>rootfs</li>
+</ul>
+<h3 id="方式2"><a href="#方式2" class="headerlink" title="方式2"></a>方式2</h3><h4 id="过程-1"><a href="#过程-1" class="headerlink" title="过程"></a>过程</h4><ul>
+<li><p>创建一个格式化为ex2文件系统的<strong>ramdisk.img</strong>文件</p>
+</li>
+<li><p>创建linuxrc可执行文件, 作为<strong>初始根文件系统</strong>的<strong>内核执行文件</strong>. 挂载img后放入初始根文件系统的根目录下.</p>
+</li>
+<li><p>在初始根文件系统下创建/dev/console, 用于日志输出.</p>
+</li>
+<li><p>卸载文件系统</p>
+<ul>
+<li><p>此时<strong>ramdisk.img</strong>的初始根文件系统结构如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">--/</span><br><span class="line">  --linuxrc</span><br><span class="line">  --<span class="built_in">dev</span>(dir)</span><br><span class="line">    --<span class="built_in">console</span>(dir)</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>qemu编译</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -kernel  arch/x86_64/boot/bzImage -hda my_rootfs/root_disk/disk.img -initrd my_rootfs/old_ramdisk/ramdisk.img --append <span class="string">&quot;root=/dev/sda init=/init console=ttyS0&quot;</span> -nographic</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>–hda: <strong>最终根文件目录</strong> = disk.img</li>
+<li>-initrd: <strong>初始根文件目录</strong> = ramdisk.img</li>
+</ul>
+</li>
+</ul>
+<h4 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h4><p>结果就是:</p>
+<ul>
+<li><p>内核首先利用<code>ramdisk</code>​(内存模拟硬盘), 并在<strong>内存上</strong>挂载了ramdisk.img, 同时执行了linuxrc程序, 等待该程序返回</p>
+<ul>
+<li>linuxrc的功能: 加载init程序所需要的模块</li>
+</ul>
+</li>
+<li><p>随后内核挂载disk.img, 并执行init程序.</p>
+</li>
+</ul>
+<h3 id="方式3"><a href="#方式3" class="headerlink" title="方式3"></a>方式3</h3><h4 id="过程-2"><a href="#过程-2" class="headerlink" title="过程"></a>过程</h4><ul>
+<li><p>创建一个格式化为ext2的disk.img</p>
+</li>
+<li><p>创建init可执行文件, 挂载disk.img并存入init</p>
+</li>
+<li><p>在初始根文件系统下创建/dev/console, 用于日志输出.</p>
+</li>
+<li><p>卸载文件系统, 得到修改后的disk.img</p>
+</li>
+<li><p>qemu编译</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">qemu-system-x86_64 -kernel  arch/x86_64/boot/bzImage -initrd my_rootfs/initrd/disk.img  --append <span class="string">&quot;root=/dev/ram0 init=/init console=ttyS0&quot;</span> -nographic</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>没有-hda</li>
+<li>-initrd: disk.img</li>
+<li>–append的root改为/dev/ram0 (在ram上挂载根文件目录)</li>
+</ul>
+</li>
+</ul>
+<h3 id="方式4"><a href="#方式4" class="headerlink" title="方式4"></a>方式4</h3><h4 id="过程-3"><a href="#过程-3" class="headerlink" title="过程"></a>过程</h4><ul>
+<li><p>创建init可执行文件</p>
+</li>
+<li><p>将init可执行文件打包成<strong>压缩的initrd文件</strong></p>
+</li>
+<li><p>qemu编译</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">qemu-system-x86_64 -kernel  arch/x86_64/boot/bzImage -initrd my_rootfs/initrd_cpio/simple_initrd.cpio.gz  --append <span class="string">&quot;init=/init console=ttyS0&quot;</span> -nographic</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>-initrd: 压缩的initrd文件</li>
+</ul>
+</li>
+</ul>
+<h4 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h4><p><strong>Android的boot.img中的ramdisk启动与此类似</strong></p>
+<h3 id="方式5"><a href="#方式5" class="headerlink" title="方式5"></a>方式5</h3><h4 id="过程-4"><a href="#过程-4" class="headerlink" title="过程"></a>过程</h4><ul>
+<li><p>创建init可执行文件</p>
+</li>
+<li><p>创建/dev/console设备节点</p>
+</li>
+<li><p>修改内核配置</p>
+<ul>
+<li><code>CONFIG_INITRAMFS_SOURCE=&quot;my_rootfs/initramfs/initramfs_data.cpio.gz&quot;</code>​</li>
+</ul>
+</li>
+<li><p>编译</p>
+<ul>
+<li>```C++<br>qemu-system-x86_64 -kernel  arch/x86_64/boot/bzImage –append “init=/init console=ttyS0” -nographic<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">* 该方法就是initramfs, **将initramfs_data.cpio.gz文件和内核编译在了一起**, 因此启动时无需额外的参数.</span><br><span class="line"></span><br><span class="line">‍</span><br><span class="line"></span><br><span class="line">### 源码分析</span><br><span class="line"></span><br><span class="line">#### Kernel源码</span><br><span class="line"></span><br><span class="line">切入点: BootLoader进入到Kernel层, 此时根文件系统还没有加载.</span><br><span class="line"></span><br><span class="line">```C++</span><br><span class="line">start_kernel()</span><br><span class="line">    vfs_caches_init()</span><br><span class="line">        mnt_init()</span><br><span class="line">            init_rootfs()</span><br><span class="line">            init_mount_tree() // -&gt;</span><br><span class="line">                vfs_kern_mount(&amp;rootfs_fs_type, 0, &quot;rootfs&quot;, NULL) // 挂载rootfs</span><br><span class="line"> </span><br><span class="line">    arch_call_rest_init()</span><br><span class="line">        rest_init() // 创建1号进程</span><br><span class="line">            kernel_thread(kernel_init, NULL, CLONE_FS)</span><br><span class="line">                kernel_init_freeable()</span><br><span class="line">                    do_basic_setup() // 初始化驱动</span><br><span class="line">                        do_initcalls() --&gt; rootfs_initcall(populate_rootfs)</span><br><span class="line">                            do_populate_rootfs()</span><br><span class="line">                                unpack_to_rootfs() // 将initramfs()解压到rootfs</span><br><span class="line"> </span><br><span class="line">                                #ifdef CONFIG_BLK_DEV_RAM</span><br><span class="line">                                populate_initrd_image(err);</span><br><span class="line"> </span><br><span class="line">                    console_on_rootfs()</span><br><span class="line">                    if (init_eaccess(ramdisk_execute_command) != 0) prepare_namespace()</span><br><span class="line">                        initrd_load()</span><br><span class="line">                        mount_root()</span><br><span class="line">                            create_dev(&quot;/dev/root&quot;, ROOT_DEV)</span><br><span class="line">                            mount_block_root(&quot;/dev/root&quot;, root_mountflags)</span><br><span class="line">                        devtmpfs_mount();</span><br><span class="line">                        init_mount(&quot;.&quot;, &quot;/&quot;, NULL, MS_MOVE, NULL);</span><br><span class="line">                        init_chroot(&quot;.&quot;);</span><br><span class="line"> </span><br><span class="line">                try_to_run_init_process()</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h5 id="init-mount-tree"><a href="#init-mount-tree" class="headerlink" title="init_mount_tree()"></a>init_mount_tree()</h5><p>不管以哪种方式启动Linux, <strong>都会经过</strong><code>**init_mout_tree()**</code>​**, 随后调用**<code>**vfs_kern_mout()(&amp;rootfs_fs_type, 0, &quot;rootfs&quot;, NULL)**</code>​.</p>
+<p>同时还会:</p>
+<ul>
+<li>设置current进程的pwd和root (current进程也叫swapper进程: 是内核空间的0号进程, 所有进程的祖先进程)</li>
+<li><strong>所以不管哪种启动方式都有一个rootfs挂载</strong>. 其实现方式可以是ramfs, 也可以是tmpfs.</li>
+</ul>
+<h5 id="rest-init"><a href="#rest-init" class="headerlink" title="rest_init()"></a>rest_init()</h5><p>创建1号进程, 该进程继承了current进程的文件系统信息: rootfs</p>
+<h5 id="do-basic-setup"><a href="#do-basic-setup" class="headerlink" title="do_basic_setup()"></a>do_basic_setup()</h5><p>初始化驱动, 并调用populate_rootfs()</p>
+<h5 id="populate-rootfs"><a href="#populate-rootfs" class="headerlink" title="populate_rootfs()"></a>populate_rootfs()</h5><p>调用链：do_populate_rootfs() -&gt; unpack_to_rootfs()</p>
+<p><strong>将initramfs的内容解压到rootfs中</strong>.</p>
+<h4 id="方式一"><a href="#方式一" class="headerlink" title="方式一"></a>方式一</h4><p>回顾上面的qemu编译代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">qemu-system-x86_64 -kernel arch/x86_64/boot/bzImage -hda my_rootfs/root_disk/disk.img --append <span class="string">&quot;root=/dev/sda init=/init console=ttyS0&quot;</span> -nographic</span><br></pre></td></tr></table></figure>
+
+<h5 id="kernel-init-freeable"><a href="#kernel-init-freeable" class="headerlink" title="kernel_init_freeable()"></a>kernel_init_freeable()</h5><p>逻辑从populate_rootfs()开始, 方式一的initramfs没有内容, 所以这种编译方式所对应的<strong>initrd_start = 0</strong>, 回到<code>kernel_init_freeable()</code>​.</p>
+<p>在该函数中继续执行:</p>
+<ul>
+<li>检查rootfs中有没有init可执行文件, 在这里没有进入prepare_namespace()</li>
+</ul>
+<h5 id="prepare-namespace"><a href="#prepare-namespace" class="headerlink" title="prepare_namespace()"></a>prepare_namespace()</h5><p>获取devicename = “dev/sda”, 截断后为”sda”. 然后调用initrd_load()函数</p>
+<h5 id="initrd-load"><a href="#initrd-load" class="headerlink" title="initrd_load()"></a>initrd_load()</h5><p>加载rootfs根目录下的initrd.img文件, rootfs没有该文件, <strong>创建/dev/ram节点</strong>.</p>
+<h5 id="往后"><a href="#往后" class="headerlink" title="往后"></a>往后</h5><p>注: 关于系统启动的挂载可以看<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/512414198"> Linux的文件系统和挂载点是什么意思？ - 知乎 (zhihu.com)</a></p>
+<p>下面的挂载过程:</p>
+<ul>
+<li>/root: 是一个tmpfs, 即基于内存的fs</li>
+<li>/dev/root: 是一个实际设备的文件系统, 挂载在内存/root上, 实现与内核连接</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建ROOT_DEV对应的设备节点/dev/root,如果没有指定rootfstype命令行参数就尝试遍历文件系统类型对/dev/root进行挂载，挂载点为/root,并且调用init_chdir(&quot;/root&quot;)将工作目录切换到/root目录下</span></span><br><span class="line"> </span><br><span class="line"><span class="built_in">mount_root</span>();</span><br><span class="line"> </span><br><span class="line"><span class="comment">//将当前工作目录(/root)移动挂载至/目录下</span></span><br><span class="line"><span class="built_in">init_mount</span>(<span class="string">&quot;.&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="literal">NULL</span>, MS_MOVE, <span class="literal">NULL</span>);</span><br><span class="line"> </span><br><span class="line"><span class="comment">//切换当前进程的根目录至当前目录</span></span><br><span class="line"><span class="built_in">init_chroot</span>(<span class="string">&quot;.&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h5 id="run-init-process"><a href="#run-init-process" class="headerlink" title="run_init_process()"></a>run_init_process()</h5><p>执行根系统上的init可执行文件</p>
+<h5 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h5><p><strong><u>==/root的挂载点被占用, 但是其只占内存中的一小部分, 所以可以一直存在, 可以理解为内存留给设备文件系统的一个接口==</u></strong></p>
+<h4 id="方式二"><a href="#方式二" class="headerlink" title="方式二"></a>方式二</h4><p>qemu编译代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -kernel  arch/x86_64/boot/bzImage -hda my_rootfs/root_disk/disk.img -initrd my_rootfs/old_ramdisk/ramdisk.img --append <span class="string">&quot;root=/dev/sda init=/init console=ttyS0&quot;</span> -nographic</span><br></pre></td></tr></table></figure>
+
+<p>有两个img:</p>
+<ul>
+<li>初始根文件系统: ramdisk.img</li>
+<li>最终根文件系统: disk.img</li>
+</ul>
+<h5 id="kernel-init-freeable-1"><a href="#kernel-init-freeable-1" class="headerlink" title="kernel_init_freeable()"></a>kernel_init_freeable()</h5><p>逻辑同样从do_populate_rootfs函数, 由于指定了-initrd参数, 所以initrd_start != 0, 会执行unpack_to_rootfs(), <strong>将-initrd选项指定的ramdisk.img解压到rootfs.</strong></p>
+<p>但是由于ramdisk.img格式不是cpio, 而是ext2镜像, 所以unpack_to_rootfs()函数会失败, 并进入到populate_initrd_image().</p>
+<h5 id="populate-initrd-image"><a href="#populate-initrd-image" class="headerlink" title="populate_initrd_image()"></a>populate_initrd_image()</h5><p>会在rootfs根目录下创建initrd.image文件, 并将-initrd指定的ramdisk.img写入initrd.image文件.</p>
+<h5 id="kernel-init-freeable-2"><a href="#kernel-init-freeable-2" class="headerlink" title="kernel_init_freeable()"></a>kernel_init_freeable()</h5><p>又返回到kernel_init_freeable(), 继续执行prepare_namespace(), 跟进调用initrd_load()</p>
+<h5 id="initrd-load-关键函数"><a href="#initrd-load-关键函数" class="headerlink" title="initrd_load() (关键函数)"></a>initrd_load() (关键函数)</h5><p>调用rd_load_image尝试识别出/initrd.image文件格式, 写入的是ext2, 识别出来后会打印日志, <strong>然后将/initrd.image拷贝到</strong><strong><code>ramdisk</code><strong>​</strong>设备文件/dev/ram中</strong>. (<code>ramdisk</code>​磁盘模拟设备文件, 表示initrd.image被加载到了内存)</p>
+<p>随后进入handle_initrd()</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">内存</span><br><span class="line"></span><br><span class="line">--------------------------</span><br><span class="line">      rootfs文件系统      |</span><br><span class="line">--------------------------</span><br><span class="line">装载initrd.image到RAM内存中|</span><br><span class="line">--------------------------</span><br></pre></td></tr></table></figure>
+
+<h5 id="handle-initrd-关键函数"><a href="#handle-initrd-关键函数" class="headerlink" title="handle_initrd() (关键函数)"></a>handle_initrd() (关键函数)</h5><p>两个重要的参数:</p>
+<ul>
+<li><p><strong>ROOT_DEV</strong></p>
+<ul>
+<li>含义: 最终根文件系统</li>
+<li>值: /dev/sda</li>
+</ul>
+</li>
+<li><p><strong>ROOT_RAM0</strong></p>
+<ul>
+<li>含义: initrd_load()中加载initrd.image的<code>ramdisk</code>​模拟磁盘设备文件</li>
+<li>值: 一个内存块, 里面加载了initrd.image</li>
+</ul>
+</li>
+</ul>
+<p><strong>判断: 最终根文件系统是否是RAM0, 而RAM0就是initrd.image文件加载的内存</strong></p>
+<ul>
+<li><p><strong>如果最终根文件系统不是RAM0</strong>: 说明刚刚加载的initrd.image文件只是一个初始根文件系统, 挂载initrd之后, 还要再挂载真正的根文件系统/dev/sda.</p>
+<ul>
+<li>所以创建设备文件/dev/root.old表示Root_RAM0(刚刚initrd.image加载的<code>ramdisk</code>​设备文件), <strong>挂载/initrd.image, 这时文件系统由rootfs变成了initrd.image, 并执行其中的/linuxrc程序</strong>.</li>
+<li>随后在调用mount_root, 挂载真正的根文件系统</li>
+</ul>
+</li>
+</ul>
+<h5 id="mount-root"><a href="#mount-root" class="headerlink" title="mount_root"></a>mount_root</h5><p>继续/dev/sda挂载, 跟方式一相同</p>
+<h5 id="run-init-peocess"><a href="#run-init-peocess" class="headerlink" title="run_init_peocess"></a>run_init_peocess</h5><p>启动位于sda设备上的init进程</p>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p>启动分为三个过程:</p>
+<ul>
+<li>rootfs</li>
+<li>ramdisk initrd</li>
+<li>sda</li>
+</ul>
+<h4 id="方式三"><a href="#方式三" class="headerlink" title="方式三"></a>方式三</h4><p>qemu编译</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -kernel  arch/x86_64/boot/bzImage -initrd my_rootfs/initrd/disk.img  --append <span class="string">&quot;root=/dev/ram0 init=/init console=ttyS0&quot;</span> -nographic</span><br></pre></td></tr></table></figure>
+
+<p>与方式二基本一样, 但是ROOT_DEV == Root_RAM0, <strong>直接将RAM中的initrd.image用作最终的根文件系统, 并执行其上的/init进程</strong>.</p>
+<h5 id="结果-2"><a href="#结果-2" class="headerlink" title="结果"></a>结果</h5><p>启动分为两个过程:</p>
+<ul>
+<li>rootfs</li>
+<li>ramdisk initrd</li>
+</ul>
+<h4 id="方式四"><a href="#方式四" class="headerlink" title="方式四"></a>方式四</h4><p>qemu编译</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">qemu-system-x86_64 -kernel  arch/x86_64/boot/bzImage -initrd my_rootfs/initrd_cpio/simple_initrd.cpio.gz  --append <span class="string">&quot;init=/init console=ttyS0&quot;</span> -nographic</span><br></pre></td></tr></table></figure>
+
+<h5 id="unpack-to-rootfs"><a href="#unpack-to-rootfs" class="headerlink" title="unpack_to_rootfs()"></a>unpack_to_rootfs()</h5><p>由于文件格式为cpio, 所以可以调用该函数.</p>
+<p>直接将simple_initrd.cpio.gz内容解压到rootfs (RAM), 同时释放initrd占据的物理内存.</p>
+<h5 id="判断"><a href="#判断" class="headerlink" title="判断"></a>判断</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">init_eaccess</span>(ramdisk_execute_command) != <span class="number">0</span>) &#123;</span><br><span class="line">        ramdisk_execute_command = <span class="literal">NULL</span>;</span><br><span class="line">        <span class="built_in">prepare_namespace</span>();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>rootfs中有/init文件, 直接执行该init程序.</p>
+<p><strong>挂载文件系统被推迟到init进程启动后</strong></p>
+<h5 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h5><p>两个过程:</p>
+<ul>
+<li>rootfs</li>
+<li>cpio initrd</li>
+</ul>
+<h4 id="方式五"><a href="#方式五" class="headerlink" title="方式五"></a>方式五</h4><p>qemu编译</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -kernel arch/x86_64/boot/bzImage --append <span class="string">&quot;init=/init console=ttyS0&quot;</span> -nographic</span><br></pre></td></tr></table></figure>
+
+<p>类似方式4, cpio压缩包和内核编译在一起</p>
+<h5 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h5><p>两个过程:</p>
+<ul>
+<li>rootfs</li>
+<li>initramfs</li>
+</ul>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>Android中的boot.img解压出来的ramdisk文件本质上是: <strong>cpio格式</strong>. 用的不是ramdisk initrd技术而是<strong>cpio initrd</strong>.</p>
+<h2 id="Android启动"><a href="#Android启动" class="headerlink" title="Android启动"></a>Android启动</h2><p>对于Magisk, 有三个种启动流程:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Method</th>
+<th align="center">Initial rootdir</th>
+<th align="center">Fianl rootdir</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">A</td>
+<td align="center">rootfs</td>
+<td align="center">rootfs</td>
+<td>老设备的rootfs</td>
+</tr>
+<tr>
+<td align="center">B</td>
+<td align="center">system</td>
+<td align="center">system</td>
+<td>system-as-root</td>
+</tr>
+<tr>
+<td align="center">C</td>
+<td align="center">rootfs</td>
+<td align="center">system</td>
+<td>rootfs -&gt; system</td>
+</tr>
+</tbody></table>
+<h3 id="MethodA"><a href="#MethodA" class="headerlink" title="MethodA"></a>MethodA</h3><p>启动方式与前面讲的Linux启动init进程的<strong>方法4</strong>一致</p>
+<h4 id="img与分区"><a href="#img与分区" class="headerlink" title="img与分区"></a>img与分区</h4><p>下面是基本的img文件和<strong>刷入</strong>分区的关系</p>
+<table>
+<thead>
+<tr>
+<th>img文件</th>
+<th>分区</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>boot.img</td>
+<td>boot分区</td>
+</tr>
+<tr>
+<td>cache.img</td>
+<td>cache分区</td>
+</tr>
+<tr>
+<td>recovery.img</td>
+<td>recovery分区</td>
+</tr>
+<tr>
+<td>system.img</td>
+<td>system分区</td>
+</tr>
+<tr>
+<td>bootloader-hammerhead-hhz11k.img</td>
+<td>bootloader分区</td>
+</tr>
+</tbody></table>
+<h4 id="boot-img文件分析"><a href="#boot-img文件分析" class="headerlink" title="boot.img文件分析"></a>boot.img文件分析</h4><p>Android系统对于BootLoader有额外的要求:</p>
+<ul>
+<li>能够解析boot_image_header格式的boot.img</li>
+</ul>
+<h5 id="boot-image-header结构体"><a href="#boot-image-header结构体" class="headerlink" title="boot_image_header结构体"></a>boot_image_header结构体</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">boot_img_hdr</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> magic[BOOT_MAGIC_SIZE];</span><br><span class="line">    <span class="keyword">uint32_t</span> kernel_size;                <span class="comment">/* size in bytes */</span></span><br><span class="line">    <span class="keyword">uint32_t</span> kernel_addr;                <span class="comment">/* physical load addr */</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">uint32_t</span> ramdisk_size;               <span class="comment">/* size in bytes */</span></span><br><span class="line">    <span class="keyword">uint32_t</span> ramdisk_addr;               <span class="comment">/* physical load addr */</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">uint32_t</span> second_size;                <span class="comment">/* size in bytes */</span></span><br><span class="line">    <span class="keyword">uint32_t</span> second_addr;                <span class="comment">/* physical load addr */</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">uint32_t</span> tags_addr;                  <span class="comment">/* physical addr for kernel tags */</span></span><br><span class="line">    <span class="keyword">uint32_t</span> page_size;                  <span class="comment">/* flash page size we assume */</span></span><br><span class="line">    <span class="keyword">uint32_t</span> unused;</span><br><span class="line">    <span class="keyword">uint32_t</span> os_version;</span><br><span class="line">    <span class="keyword">uint8_t</span> name[BOOT_NAME_SIZE];        <span class="comment">/* asciiz product name */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> cmdline[BOOT_ARGS_SIZE];</span><br><span class="line">    <span class="keyword">uint32_t</span> id[<span class="number">8</span>];                      <span class="comment">/* timestamp / checksum / sha1 / etc */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> extra_cmdline[BOOT_EXTRA_ARGS_SIZE];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h5><ul>
+<li><p>kernel</p>
+<ul>
+<li>内核文件</li>
+<li>dtb: 一种数据结构, 用于描述嵌入式系统种硬件设备及其连接关系.</li>
+</ul>
+</li>
+<li><p>ramdisk文件: 格式为gzip <strong>cpio</strong>, 前面说明过</p>
+<ul>
+<li>init可执行程序</li>
+<li>init.rx配置文件</li>
+<li>其他文件…</li>
+</ul>
+</li>
+</ul>
+<h4 id="启动方式"><a href="#启动方式" class="headerlink" title="启动方式"></a>启动方式</h4><h5 id="传递initrd"><a href="#传递initrd" class="headerlink" title="传递initrd"></a>传递initrd</h5><ul>
+<li>qemu编译: 通过-initrd参数传递, 内核获取initrd, 并解压到rootfs中</li>
+<li>Android: <strong>bootloader通过fdt扁平设备树将initrd交给内核, 配置信息存放在r2寄存器中</strong>. (注: 参考<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/arm/Booting">kernel.org/doc/Documentation/arm/Booting</a>, 翻译见文章底部)</li>
+</ul>
+<p>bootloader在物理内存中加载完ramdisk后修改fdt, 设置/chosen节点的linux,initrd-start和initrd-end属性, 随后内核获取到该信息.</p>
+<h5 id="加载ramdisk"><a href="#加载ramdisk" class="headerlink" title="加载ramdisk"></a>加载ramdisk</h5><p>随后ramdisk文件会被解压到rootfs中, rootfs挂载点并没有被其他挂载点占据, 系统启动后仍可看到rootfs.</p>
+<h5 id="运行init"><a href="#运行init" class="headerlink" title="运行init"></a>运行init</h5><p>rootfs中已经有init程序, init启动后加载init.rc配置文件, 其中执行<code>mount_all ./fstab.hammerhead</code>​, 进一步挂载system, userdata分区.</p>
+<h5 id="recovery分区"><a href="#recovery分区" class="headerlink" title="recovery分区"></a>recovery分区</h5><p>bootloader会决定:</p>
+<ul>
+<li>加载boot分区镜像, 进入正常系统</li>
+<li>加载recovery分区镜像, 进入recovery模式</li>
+</ul>
+<h3 id="方法B"><a href="#方法B" class="headerlink" title="方法B"></a>方法B</h3><p>也叫: Legacy System-as-root, </p>
+<p>其中System-as-root意思是system分区作为根文件系统</p>
+<h4 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h4><ul>
+<li>A/B区: Android支持A/B分区实现无缝更新概念, 比如: system_a和system_b. (无缝更新: 无线下载期间磁盘上保留一个正常启用的系统)</li>
+<li>Project Treble: Android还有Project Treble计划: 将Android与厂商分开, 且定义二者间稳定的接口. 其中就包含了system-as-root.</li>
+<li>system-as-root: 将init编译进system镜像, 且将system挂载为/</li>
+</ul>
+<h4 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h4><h5 id="populate-rootfs-1"><a href="#populate-rootfs-1" class="headerlink" title="populate_rootfs()"></a>populate_rootfs()</h5><p>由于<code>do_skip_initramfs = true</code>​, 提前返回.</p>
+<p>并不会解压initrd到rootf, 直接调用default_rootfs(), 在rootfs中创建/dev/console文件.</p>
+<h5 id="prepare-namespage"><a href="#prepare-namespage" class="headerlink" title="prepare_namespage()"></a>prepare_namespage()</h5><p>利用device mapper机制创建虚拟块设备dm-0, <strong>将该虚拟块作为根文件系统挂载</strong>.</p>
+<h5 id="remount-partition"><a href="#remount-partition" class="headerlink" title="remount_partition()"></a>remount_partition()</h5><p>找到对应的/目录所在设备, 然后重新挂载</p>
+<h3 id="方法C"><a href="#方法C" class="headerlink" title="方法C"></a>方法C</h3><p>跟方法A有点类似, 又叫: ramdisk system-as-root,</p>
+<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><h5 id="传递并使用initrd"><a href="#传递并使用initrd" class="headerlink" title="传递并使用initrd"></a>传递并使用initrd</h5><p>bootloader通过fdt传递initrd给内核, 并解压到rootfs作为初始根文件系统, 并执行init程序, <strong>init进程负责挂载并将其作为新的rootdir</strong>. 然后执行system/bin/init程序完成系统启动的剩余部分.</p>
+<h2 id="Magisk-patch-ramdisk"><a href="#Magisk-patch-ramdisk" class="headerlink" title="Magisk patch ramdisk"></a>Magisk patch ramdisk</h2><p>Magisk主要目标时boot.img中的ramdisk文件, 做出的修改如下:</p>
+<ul>
+<li><p>用magiskinit程序替换掉init程序</p>
+</li>
+<li><p>创建出overlay.d/sbin目录</p>
+</li>
+<li><p>将magisk32和magisk64守护进程拷贝到overlay.d/sbin目录下</p>
+</li>
+<li><p>将stub.apk的压缩包添加到overlay.d/sbin目录下</p>
+</li>
+<li><p>备份init程序, 用于修改系统后, 继续启动系统</p>
+</li>
+<li><p>将<strong>配置项</strong>保存在**.backup/.magisk**文件中, 内容如下</p>
+<ul>
+<li>```C++<br>KEEPVERITY=true<br>KEEPFORCEENCRYPT=true<br>PATCHVBMETAFLAG=false<br>RECOVERYMODE=false<br>SHA1=ea36c0b1d697814f99d38984d720875274bb1764<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">* patch dtb的skip_initramfs, 该参数影响系统正常启动还是进入recovery模式</span><br><span class="line">* patch内核</span><br><span class="line"></span><br><span class="line">### 文件结构</span><br><span class="line"></span><br><span class="line">经过修改后的boot文件结构如下</span><br><span class="line"></span><br><span class="line">```C++</span><br><span class="line">--/</span><br><span class="line">  --magiskinit(替换init)</span><br><span class="line">  --overlay.d</span><br><span class="line">    --sbin</span><br><span class="line">      --magisk32(守护进程)</span><br><span class="line">      --magisk64(守护进程)</span><br><span class="line">      --stub.xz(stub.apk压缩包)</span><br><span class="line">  --.backup</span><br><span class="line">    --.magisk(配置文件)</span><br><span class="line">    --init(原本的init程序, 修改完成后执行)</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="Magisk-init"><a href="#Magisk-init" class="headerlink" title="Magisk init"></a>Magisk init</h2><p>bootloader控制权转交给内核, 内核解压ramdisk并运行init程序, 以下为main函数源码</p>
+<h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><p>Magisk区分四种类型</p>
+<table>
+<thead>
+<tr>
+<th align="center">Type</th>
+<th align="center">Boot Method(引导方式)</th>
+<th align="center">Partition(分区数)</th>
+<th align="center">2SI</th>
+<th align="center">Ramdisk in boot(引导的Ramdisk文件)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">A</td>
+<td align="center">A-only</td>
+<td align="center">No</td>
+<td align="center">boot ramdisk文件</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">B</td>
+<td align="center">A/B</td>
+<td align="center">Any</td>
+<td align="center">recovery ramdisk文件</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">B</td>
+<td align="center">A-only</td>
+<td align="center">Any</td>
+<td align="center">N/A</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="center">D</td>
+<td align="center">Any</td>
+<td align="center">Yes</td>
+<td align="center">Hybird ramdisk</td>
+</tr>
+</tbody></table>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">    <span class="built_in">umask</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> name = <span class="built_in">basename</span>(argv[<span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">if</span> (name == <span class="string">&quot;magisk&quot;</span>sv)</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">magisk_proxy_main</span>(argc, argv);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">getpid</span>() != <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    BaseInit *init;</span><br><span class="line">    BootConfig config&#123;&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (argc &gt; <span class="number">1</span> &amp;&amp; argv[<span class="number">1</span>] == <span class="string">&quot;selinux_setup&quot;</span>sv) &#123;</span><br><span class="line">        rust::<span class="built_in">setup_klog</span>();</span><br><span class="line">        init = <span class="keyword">new</span> <span class="built_in">SecondStageInit</span>(argv);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// This will also mount /sys and /proc</span></span><br><span class="line">        <span class="built_in">load_kernel_info</span>(&amp;config);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (config.skip_initramfs)</span><br><span class="line">            init = <span class="keyword">new</span> <span class="built_in">LegacySARInit</span>(argv, &amp;config);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (config.force_normal_boot)</span><br><span class="line">            init = <span class="keyword">new</span> <span class="built_in">FirstStageInit</span>(argv, &amp;config);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">access</span>(<span class="string">&quot;/sbin/recovery&quot;</span>, F_OK) == <span class="number">0</span> || <span class="built_in">access</span>(<span class="string">&quot;/system/bin/recovery&quot;</span>, F_OK) == <span class="number">0</span>)</span><br><span class="line">            init = <span class="keyword">new</span> <span class="built_in">RecoveryInit</span>(argv, &amp;config);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">check_two_stage</span>())</span><br><span class="line">            init = <span class="keyword">new</span> <span class="built_in">FirstStageInit</span>(argv, &amp;config);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            init = <span class="keyword">new</span> <span class="built_in">RootFSInit</span>(argv, &amp;config);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Run the main routine</span></span><br><span class="line">    init-&gt;<span class="built_in">start</span>();</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Type-1"><a href="#Type-1" class="headerlink" title="Type 1"></a>Type 1</h4><p>分两种情况:</p>
+<ul>
+<li>启动Android: 执行<code>init = new RootFSInit(argv, &amp;config);</code>​</li>
+<li>启动recovery: recovery分区并未被magisk修改 直接启动recovery分区 (magisk只修改了boot.img文件)</li>
+</ul>
+<h4 id="Type-2"><a href="#Type-2" class="headerlink" title="Type 2"></a>Type 2</h4><p>分两种情况:</p>
+<ul>
+<li>启动Android: 执行​<code>init = new LegacySARInit(argv, &amp;config);</code>​</li>
+<li>启动recovery: 由于针对启动方式B, 所以boot.img中的ramdisk是recovery的影响, 执行​<code>init = new RecoveryInit(argv, &amp;config);</code>​</li>
+</ul>
+<h4 id="Type-3"><a href="#Type-3" class="headerlink" title="Type 3"></a>Type 3</h4><p>分两种情况:</p>
+<ul>
+<li><p>启动Android: 进入无magisk的原始系统</p>
+</li>
+<li><p>启动recovery: magiskinit读取/.backup/.magisk配置文件, 通过判断音量键决定:</p>
+<ul>
+<li>进入magisk, 执行​<code>init = new LegacySARInit(argv, &amp;config);</code>​</li>
+<li>进入recovery, 执行<code>init = new RecoveryInit(argv, &amp;config);</code>​</li>
+</ul>
+</li>
+</ul>
+<h4 id="Type-4"><a href="#Type-4" class="headerlink" title="Type 4"></a>Type 4</h4><p>分两种情况:</p>
+<ul>
+<li>启动Android: 执行​<code>init = new FirstStageInit(argv, &amp;config)</code>​</li>
+<li>启动recovery: 仍然执行​<code>init = new FirstStageInit(argv, &amp;config)</code>​</li>
+</ul>
+<h3 id="修改系统"><a href="#修改系统" class="headerlink" title="修改系统"></a>修改系统</h3><p>替换后的magiskinit需要完成的功能就是修改系统, 根据不同的Android启动方式采用不同的修改方式</p>
+<h4 id="针对MethodC"><a href="#针对MethodC" class="headerlink" title="针对MethodC"></a>针对MethodC</h4><p>仅分析MethodC的Magisk的patch过程</p>
+<p>启动过程: rootfs -&gt; system</p>
+<ul>
+<li><p>rootfs过程: 先将原本的init删除, 然后将.backup/init文件移动到根目录, 并进行修改:</p>
+<ul>
+<li>修改路径字符串: 将”/system/bin/init”改成了”/data/magiskinit”文件 (两个字符串长度都是16)</li>
+</ul>
+</li>
+</ul>
+<h5 id="FirstStageInit"><a href="#FirstStageInit" class="headerlink" title="FirstStageInit"></a>FirstStageInit</h5><p>针对MethodC, 创建了FirstStageInit实例, 并调用了start()方法, 查看源码:</p>
+<ul>
+<li><p>继承自BaseInit</p>
+</li>
+<li><p>start()</p>
+<ul>
+<li>调用了重写的prepare()</li>
+<li>调用exec_init()</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FirstStageInit</span> :</span> <span class="keyword">public</span> BaseInit &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">prepare</span><span class="params">()</span></span>;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">FirstStageInit</span>(<span class="keyword">char</span> *argv[], BootConfig *config) : <span class="built_in">BaseInit</span>(argv, config) &#123;</span><br><span class="line">        <span class="built_in">LOGD</span>(<span class="string">&quot;%s\n&quot;</span>, __FUNCTION__);</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="built_in">prepare</span>();</span><br><span class="line">        <span class="built_in">exec_init</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="FirstStageInit-prepare"><a href="#FirstStageInit-prepare" class="headerlink" title="FirstStageInit::prepare()"></a>FirstStageInit::prepare()</h5><p>逻辑:</p>
+<ul>
+<li>prepare_data()</li>
+<li>restore_ramdisk_init()</li>
+<li>获取init文件, 并对其进行patch操作, 最后输出日志</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FirstStageInit::prepare</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">prepare_data</span>();</span><br><span class="line">    <span class="built_in">restore_ramdisk_init</span>();</span><br><span class="line">    <span class="keyword">auto</span> init = <span class="built_in">mmap_data</span>(<span class="string">&quot;/init&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">    <span class="comment">// Redirect original init to magiskinit</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> off : init.<span class="built_in">patch</span>(INIT_PATH, REDIR_PATH)) &#123;</span><br><span class="line">        <span class="built_in">LOGD</span>(<span class="string">&quot;Patch @ %08zX [&quot;</span> INIT_PATH <span class="string">&quot;] -&gt; [&quot;</span> REDIR_PATH <span class="string">&quot;]\n&quot;</span>, off);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="prepare-data"><a href="#prepare-data" class="headerlink" title="prepare_data()"></a>prepare_data()</h5><p>回顾一下当前的上下文:</p>
+<ul>
+<li>当前进程: magisk的第一阶段<strong>被patch的init</strong></li>
+<li>文件系统: rootfs, 其中解压的ramdisk文件</li>
+</ul>
+<p>逻辑:</p>
+<ul>
+<li>创建/data目录</li>
+<li>/data作为挂载点, 挂载magisk文件系统, 系统类型为tmpfs(基于内存)</li>
+<li>拷贝init到/data/magiskinit</li>
+<li>拷贝/.backup</li>
+<li>拷贝overlay.d</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">BaseInit::prepare_data</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">LOGD</span>(<span class="string">&quot;Setup data tmp\n&quot;</span>);</span><br><span class="line">    <span class="built_in">xmkdir</span>(<span class="string">&quot;/data&quot;</span>, <span class="number">0755</span>);</span><br><span class="line">    <span class="built_in">xmount</span>(<span class="string">&quot;magisk&quot;</span>, <span class="string">&quot;/data&quot;</span>, <span class="string">&quot;tmpfs&quot;</span>, <span class="number">0</span>, <span class="string">&quot;mode=755&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">cp_afc</span>(<span class="string">&quot;/init&quot;</span>, <span class="string">&quot;/data/magiskinit&quot;</span>);</span><br><span class="line">    <span class="built_in">cp_afc</span>(<span class="string">&quot;/.backup&quot;</span>, <span class="string">&quot;/data/.backup&quot;</span>);</span><br><span class="line">    <span class="built_in">cp_afc</span>(<span class="string">&quot;/overlay.d&quot;</span>, <span class="string">&quot;/data/overlay.d&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="restore-ramdisk-init"><a href="#restore-ramdisk-init" class="headerlink" title="restore_ramdisk_init"></a>restore_ramdisk_init</h5><p>逻辑:</p>
+<ul>
+<li>删除原本的根目录下的init</li>
+<li>获取<code>&quot;/.backup/init&quot;</code>​文件</li>
+<li>将<code>&quot;/.backup/init&quot;</code>​文件移动到根目录</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">restore_ramdisk_init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">unlink</span>(<span class="string">&quot;/init&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *orig_init = <span class="built_in">backup_init</span>();</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">access</span>(orig_init, F_OK) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">xrename</span>(orig_init, <span class="string">&quot;/init&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// If the backup init is missing, this means that the boot ramdisk</span></span><br><span class="line">        <span class="comment">// was created from scratch, and the real init is in a separate CPIO,</span></span><br><span class="line">        <span class="comment">// which is guaranteed to be placed at /system/bin/init.</span></span><br><span class="line">        <span class="built_in">xsymlink</span>(INIT_PATH, <span class="string">&quot;/init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h5 id="magisk-cpio-patch"><a href="#magisk-cpio-patch" class="headerlink" title="magisk_cpio::patch()"></a>magisk_cpio::patch()</h5><p>回到了prepare()函数, 调用init.patch对原本的init文件进行patch: 将所有的<code>&quot;system/bin/init&quot;</code>​换成<code>&quot;/data/magiskinit&quot;</code>​</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">size_t</span> off : init.<span class="built_in">patch</span>(INIT_PATH, REDIR_PATH)) &#123;</span><br><span class="line">    <span class="built_in">LOGD</span>(<span class="string">&quot;Patch @ %08zX [&quot;</span> INIT_PATH <span class="string">&quot;] -&gt; [&quot;</span> REDIR_PATH <span class="string">&quot;]\n&quot;</span>, off);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="BaseInit-exec-init"><a href="#BaseInit-exec-init" class="headerlink" title="BaseInit::exec_init()"></a>BaseInit::exec_init()</h5><p>完成对init的patch后, 进入该函数, 并执行patch后的init, 该init会执行下列操作.</p>
+<ul>
+<li><strong>挂载system分区</strong></li>
+<li>由于运行路径修改, <strong>将运行/data/magiskinit可执行文件</strong>.</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">BaseInit::exec_init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Unmount in reverse order</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;p : <span class="built_in">reversed</span>(mount_list)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">xumount2</span>(p.<span class="built_in">data</span>(), MNT_DETACH) == <span class="number">0</span>)</span><br><span class="line">            <span class="built_in">LOGD</span>(<span class="string">&quot;Unmount [%s]\n&quot;</span>, p.<span class="built_in">data</span>());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">execv</span>(<span class="string">&quot;/init&quot;</span>, argv);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="系统修改"><a href="#系统修改" class="headerlink" title="系统修改"></a>系统修改</h2><h3 id="添加服务"><a href="#添加服务" class="headerlink" title="添加服务"></a>添加服务</h3><p>magisk对系统的修改主要是为了能启动magisk root守护进程, 这需要<strong>修改init.rc文件</strong>, 加入magisk的service.</p>
+<h3 id="SELinux"><a href="#SELinux" class="headerlink" title="SELinux"></a>SELinux</h3><p>‍</p>
+<p>‍</p>
+<h1 id="其他-arm平台boot协议-翻译"><a href="#其他-arm平台boot协议-翻译" class="headerlink" title="[其他]arm平台boot协议(翻译)"></a>[其他]arm平台boot协议(翻译)</h1><p>接下来的文档基于2.4.18-rmk6以及之前的版本</p>
+<p>为了引导启动ARM Linux, 你需要一个BootLoader —- 一个在内核启动之前运行的小程序. BootLoader要求<strong>初始化各种设备</strong>, 最后<strong>调用内核</strong>, <strong>并传送信息给内核</strong>.</p>
+<p>大体上, BootLoader应该最低限度的提供以下功能:</p>
+<ul>
+<li>启动和初始化RAM</li>
+<li>初始化一个串口</li>
+<li>识别机器类型</li>
+<li>设置内核标记列表(Setup the kernel tagged list)</li>
+<li>加载initramfs (前面提到过的)</li>
+<li>调用内核映像</li>
+</ul>
+<h2 id="1-启动和初始化RAM"><a href="#1-启动和初始化RAM" class="headerlink" title="1. 启动和初始化RAM"></a>1. 启动和初始化RAM</h2><table>
+<thead>
+<tr>
+<th align="center">Bootloader</th>
+<th align="center">性质(是否具有该功能)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">现有BootLoader</td>
+<td align="center">强制的</td>
+</tr>
+<tr>
+<td align="center">新BootLoader</td>
+<td align="center">强制的</td>
+</tr>
+</tbody></table>
+<p>BootLoader要求找到并初始化所有内核将会用到的RAM. 初始化RAM包括定位和调整RAM的大小, 初始化的具体操作依赖于:</p>
+<ul>
+<li>内核算法</li>
+<li>机器预留</li>
+<li>BootLoader设计者任何可行的任何方法</li>
+</ul>
+<h2 id="2-初始化一个串口"><a href="#2-初始化一个串口" class="headerlink" title="2. 初始化一个串口"></a>2. 初始化一个串口</h2><table>
+<thead>
+<tr>
+<th align="center">Bootloader</th>
+<th align="center">性质(是否具有该功能)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">现有BootLoader</td>
+<td align="center">可选的, 推荐使用的</td>
+</tr>
+<tr>
+<td align="center">新BootLoader</td>
+<td align="center">可选的, 推荐使用的</td>
+</tr>
+</tbody></table>
+<p>BootLoader应该初始化并启用目标上的一个串口. 这允许内核<strong>串口驱动</strong>去自动选择哪一个串口应该被内核使用. (通常用于调试, 或者与目标通信)</p>
+<h2 id="3-检测机器类型"><a href="#3-检测机器类型" class="headerlink" title="3. 检测机器类型"></a>3. 检测机器类型</h2><table>
+<thead>
+<tr>
+<th align="center">Bootloader</th>
+<th align="center">性质(是否具有该功能)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">现有BootLoader</td>
+<td align="center">可选的</td>
+</tr>
+<tr>
+<td align="center">新BootLoader</td>
+<td align="center">强制的(除了dt平台)</td>
+</tr>
+</tbody></table>
+<p>BootLoader应该检查机器类型, 可以通过:</p>
+<ul>
+<li>硬编码</li>
+<li>连接硬件的某种算法</li>
+</ul>
+<p>以上方法的原理超出了本文档描述的范围.</p>
+<p>BootLoader必须项内核提供MACH_TYPE_xxx值, 通过r1寄存器传递给内核.</p>
+<p>注: 关于DT平台的描述不常用就没看了</p>
+<h2 id="4-设置引导数据"><a href="#4-设置引导数据" class="headerlink" title="4. 设置引导数据"></a>4. 设置引导数据</h2><table>
+<thead>
+<tr>
+<th align="center">Bootloader</th>
+<th align="center">性质(是否具有该功能)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">现有BootLoader</td>
+<td align="center">可选的, highly</td>
+</tr>
+<tr>
+<td align="center">新BootLoader</td>
+<td align="center">强制的</td>
+</tr>
+</tbody></table>
+<p>BootLoader必须提供<strong>标签表</strong>或者<strong>dtb映像</strong>, <strong>用于将配置数据传递给内核.</strong></p>
+<p><strong>boot数据(配置信息)的物理地址在r2寄存器传送给了内核.</strong></p>
+<h3 id="tagged-list传送方式"><a href="#tagged-list传送方式" class="headerlink" title="tagged list传送方式"></a>tagged list传送方式</h3><p>BootLoader必须创建并初始化内核<strong>标签表</strong>.</p>
+<p>一个有效标签表以ATAG_CORE开始, 并以ATAG_NONE结束.</p>
+<p>ATAG_CORE标签可以为空, 也可以为非空. 一个空ATAG_CORE标签的size字段设置为2, ATAG_NONE必须将size字段设置为0.</p>
+<p>标签表中可以防止任意数量的标签.</p>
+<p>BootLoader至少要传递传递: 系统内存的大小和位置, 根文件系统的位置. 因此, 最小标记列表应该是如下所示</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">	+-----------+</span><br><span class="line">base -&gt;	| ATAG_CORE |  |</span><br><span class="line">	+-----------+  |</span><br><span class="line">	| ATAG_MEM  |  | increasing address</span><br><span class="line">	+-----------+  |</span><br><span class="line">	| ATAG_NONE |  |</span><br><span class="line">	+-----------+  v</span><br></pre></td></tr></table></figure>
+
+<p><strong>标签表应该存储在系统RAM中</strong>.</p>
+<p>标签表不能被内核解压缩程序或者bootp覆盖, 所以建议放在内存的头16KiB中.</p>
+<h3 id="dtb映像传送方式"><a href="#dtb映像传送方式" class="headerlink" title="dtb映像传送方式"></a>dtb映像传送方式</h3><p>BootLoader必须将<strong>设备树映像(dtb)<strong>到加载到64为对齐地址的系统RAM中, 并用boot数据对其进行</strong>初始化</strong>.</p>
+<p>内核将检查dtb的魔数0xd00dfeed, 确定传递的是dtb而不是标签表</p>
+<p>BootLoader至少传递:</p>
+<ul>
+<li>系统内存的大小和位置</li>
+<li>根文件系统位置</li>
+</ul>
+<p>dtb同样不能被覆盖, 应该放置在内核低内存映射覆盖区域.</p>
+<p>RAM开始的128MiB边界上方是一个安全位置.</p>
+<p>‍</p>
+<p>‍</p>
+<h1 id="学习文章"><a href="#学习文章" class="headerlink" title="学习文章"></a>学习文章</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.meansome.top/index.php/archives/15/">Magisk原理 - Meansome</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/6bc251ee9026">Android su提权的简单实现 - 简书 (jianshu.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-275939.htm">[原创] 云手机底层技术揭密 : Android系统启动与Magisk原理-Android安全-看雪-安全社区|安全招聘|kanxue.com</a></li>
+<li><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/GUID%E7%A3%81%E7%A2%9F%E5%88%86%E5%89%B2%E8%A1%A8">全局唯一标识分区表 - 维基百科，自由的百科全书 (wikipedia.org)</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/arm/Booting">kernel.org/doc/Documentation/arm/Booting</a></li>
+<li><a target="_blank" rel="noopener" href="https://source.android.com/docs/core/architecture/bootloader/boot-image-header?hl=zh-cn">引导映像标题  |  Android 开源项目  |  Android Open Source Project</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/512414198"> Linux的文件系统和挂载点是什么意思？ - 知乎 (zhihu.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://cn-sec.com/archives/1773948.html">magisk的原理与检测方法 | CN-SEC 中文网</a></li>
+</ul>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LamのCrow</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2023/06/09/MagiskPrinciple/">http://example.com/2023/06/09/MagiskPrinciple/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">LamのCrow</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Android/">Android</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2023/05/13/flagio/"><span>XCTF2023 flagio</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s4.ax1x.com/2021/12/06/oy2VdH.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2021 - 2023 By LamのCrow</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="footer_custom_text">追求幸福</div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"superSample":2,"width":210,"height":420,"position":"right","hOffset":0,"vOffset":-20},"log":false,"tagMode":false});</script></body></html>
